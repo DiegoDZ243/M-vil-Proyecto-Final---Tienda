@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -53,6 +57,7 @@ fun MenuScreen() {
     }
 }
 
+//Barra superior del menú principal
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreenTopAppBar(
@@ -67,7 +72,7 @@ fun MenuScreenTopAppBar(
                     modifier = Modifier
                         .size(64.dp)
                         .padding(8.dp),
-                    painter = painterResource(R.drawable.tenis_blancos),
+                    painter = painterResource(R.drawable.tiend_logo),
                     contentDescription = null
                 )
 
@@ -77,26 +82,25 @@ fun MenuScreenTopAppBar(
                 )
             }
         },
+
+        // Botón del carrito (Posteriormente agregar la
+        // funcionalidad de mostrar cuantos productos hay en el carrito)
+        actions = {
+            IconButton(
+                onClick = { }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = "Carrito"
+                )
+            }
+        },
+
         modifier = modifier
     )
 }
 
-@Composable
-fun ProductImage(
-    @DrawableRes productImage: Int,
-    modifier: Modifier = Modifier
-) {
-    Image(
-        modifier = modifier
-            .size(dimensionResource(R.dimen.image_size))
-            .padding(dimensionResource(R.dimen.padding_small))
-            .clip(MaterialTheme.shapes.small),
-        contentScale = ContentScale.Crop,
-        painter = painterResource(productImage),
-        contentDescription = null
-    )
-}
-
+//Composable que contiene la información del producto (precio)
 @Composable
 fun ProductInformation(
     @StringRes productName: Int,
@@ -121,25 +125,61 @@ fun ProductInformation(
     }
 }
 
+//Composable que contiene y da formato a la imagen
+@Composable
+fun ProductImage(
+    @DrawableRes productImage: Int,
+    modifier: Modifier = Modifier
+) {
+    Image(
+        modifier = modifier
+            .fillMaxWidth()
+            .size(180.dp)
+            .clip(MaterialTheme.shapes.small),
+        contentScale = ContentScale.Fit,
+        painter = painterResource(productImage),
+        contentDescription = null
+    )
+}
+
 @Composable
 fun ProductItem(
     product: Producto,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+//    onAgregarCarrito: () -> Unit = {}
 ) {
     Card(
         modifier = modifier
+            .fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+        Column(
+            modifier = Modifier.padding(12.dp)
         ) {
-            ProductImage(product.imagen)
+
+            ProductImage(
+                product.imagen,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
 
             ProductInformation(
                 productName = product.nombre,
-                productPrice = product.precio
+                productPrice = product.precio,
+                modifier = Modifier.padding(top = 8.dp)
             )
+
+            Text(
+                text = "Envío gratis",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 6.dp)
+            )
+
+            IconButton(
+                onClick = {},//onAgregarCarrito
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Agregar al carrito")
+            }
         }
     }
 }
