@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Proyecto Final</string>
+    <string name="producto_1">Playera negra</string>
+    <string name="producto_2">Sudadera gris</string>
+    <string name="producto_3">Pantalón de mezclilla</string>
+    <string name="producto_4">Gorra deportiva</string>
+    <string name="producto_5">Tenis blancos</string>
+</resources>
