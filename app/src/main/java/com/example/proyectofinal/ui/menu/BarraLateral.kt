@@ -1,4 +1,4 @@
-package com.example.proyectofinal.ui
+package com.example.proyectofinal.ui.menu
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -25,29 +25,26 @@ import com.example.proyectofinal.R
 
 @Composable
 fun BarraLateral(
-    username: String
+    username: String,
+    onItemClick: (String) -> Unit
 ) {
     ModalDrawerSheet(
         modifier = Modifier.width(280.dp)
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Image(
                 painter = painterResource(R.drawable.usuario),
                 contentDescription = "Foto de perfil",
                 modifier = Modifier.size(90.dp)
             )
-
             Spacer(
                 modifier = Modifier.size(12.dp)
             )
-
             Text(
                 text = username,
                 style = MaterialTheme.typography.titleLarge
@@ -55,47 +52,26 @@ fun BarraLateral(
         }
 
         NavigationDrawerItem(
-            label = {
-                Text("Comenzar a vender")
-            },
+            label = { Text("Comenzar a vender") },
             selected = false,
-            onClick = {},
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Store,
-                    contentDescription = null
-                )
-            },
+            onClick = { onItemClick("Vender") },
+            icon = { Icon(imageVector = Icons.Default.Store, contentDescription = null) },
             modifier = Modifier.padding(horizontal = 12.dp)
         )
 
         NavigationDrawerItem(
-            label = {
-                Text("Mis pedidos")
-            },
+            label = { Text("Mis pedidos") },
             selected = false,
-            onClick = {},
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.ShoppingBag,
-                    contentDescription = null
-                )
-            },
+            onClick = { onItemClick("Pedidos") },
+            icon = { Icon(imageVector = Icons.Default.ShoppingBag, contentDescription = null) },
             modifier = Modifier.padding(horizontal = 12.dp)
         )
 
         NavigationDrawerItem(
-            label = {
-                Text("Ajustes")
-            },
+            label = { Text("Ajustes") },
             selected = false,
-            onClick = {},
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = null
-                )
-            },
+            onClick = { onItemClick("Ajustes") },
+            icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = null) },
             modifier = Modifier.padding(horizontal = 12.dp)
         )
     }
