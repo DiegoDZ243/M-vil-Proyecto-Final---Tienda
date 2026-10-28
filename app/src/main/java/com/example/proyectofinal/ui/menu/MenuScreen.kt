@@ -1,4 +1,4 @@
-package com.example.proyectofinal.ui
+package com.example.proyectofinal.ui.menu
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
@@ -25,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,18 +40,26 @@ import androidx.compose.ui.unit.dp
 import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.data.model.productos
+import com.example.proyectofinal.ui.BarraLateral
+import com.example.proyectofinal.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
+
+object MenuDestination : NavigationDestination {
+    override val route = "home"
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuScreen() {
-
+fun MenuScreen(
+    viewModel: MenuViewModel,
+    navigateToShoppingCart : () -> Unit
+) {
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
     )
 
     val scope = rememberCoroutineScope()
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -65,7 +76,9 @@ fun MenuScreen() {
                         scope.launch {
                             drawerState.open()
                         }
-                    }
+                    },
+                    navigateToShoppingCart,
+                    viewModel,
                 )
             }
         ) { innerPadding ->
@@ -76,6 +89,7 @@ fun MenuScreen() {
                 items(productos) { producto ->
                     ProductItem(
                         product = producto,
+                        onAgregarCarrito = { p -> viewModel.agregarAlCarrito(p) },
                         modifier = Modifier.padding(
                             dimensionResource(R.dimen.padding_small)
                         )
@@ -91,7 +105,9 @@ fun MenuScreen() {
 @Composable
 fun MenuScreenTopAppBar(
     onMenuClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClickShoppingCart:()->Unit,
+    viewModel: MenuViewModel,
+    modifier: Modifier = Modifier.Companion
 ) {
     CenterAlignedTopAppBar(
 
@@ -128,16 +144,24 @@ fun MenuScreenTopAppBar(
         // Botón del carrito (Posteriormente agregar la
         // funcionalidad de mostrar cuantos productos hay en el carrito)
         actions = {
-            IconButton(
-                onClick = { }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    contentDescription = "Carrito"
-                )
+            IconButton(onClick = onClickShoppingCart) {
+                BadgedBox(
+                    badge = {
+                        // Solo mostramos la burbuja si hay más de 0 productos
+                        if (viewModel.uiState.collectAsState().value.shoppingCartTotal > 0) {
+                            Badge {
+                                Text(text = viewModel.uiState.collectAsState().value.shoppingCartTotal.toString())
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Carrito"
+                    )
+                }
             }
         },
-
         modifier = modifier
     )
 }
@@ -147,7 +171,7 @@ fun MenuScreenTopAppBar(
 fun ProductInformation(
     @StringRes productName: Int,
     productPrice: Double,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.Companion
 ) {
     Column(
         modifier = modifier
@@ -171,7 +195,7 @@ fun ProductInformation(
 @Composable
 fun ProductImage(
     @DrawableRes productImage: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.Companion
 ) {
     Image(
         modifier = modifier
@@ -187,8 +211,8 @@ fun ProductImage(
 @Composable
 fun ProductItem(
     product: Producto,
-    modifier: Modifier = Modifier,
-//    onAgregarCarrito: () -> Unit = {}
+    modifier: Modifier = Modifier.Companion,
+    onAgregarCarrito: (Producto) -> Unit
 ) {
     Card(
         modifier = modifier
@@ -217,7 +241,7 @@ fun ProductItem(
             )
 
             IconButton(
-                onClick = {},//onAgregarCarrito
+                onClick = { onAgregarCarrito(product) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Agregar al carrito")
