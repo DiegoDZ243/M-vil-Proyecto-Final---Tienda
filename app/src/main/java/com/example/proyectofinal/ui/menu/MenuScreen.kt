@@ -29,7 +29,8 @@ import com.example.proyectofinal.data.model.Producto
 fun MenuScreen(
     viewModel: TiendaViewModel,
     onCartClick: () -> Unit,
-    onOpenMenu: () -> Unit
+    onOpenMenu: () -> Unit,
+    onProductClick: (Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -49,7 +50,8 @@ fun MenuScreen(
                 ProductItem(
                     product = producto,
                     modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
-                    onAgregarCarrito = { viewModel.agregarAlCarrito(producto) }
+                    onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
+                    onProductClick = { onProductClick(producto.id) }
                 )
             }
         }
@@ -121,12 +123,14 @@ fun ProductImage(
 fun ProductItem(
     product: Producto,
     modifier: Modifier = Modifier,
-    onAgregarCarrito: () -> Unit
+    onAgregarCarrito: () -> Unit,
+    onProductClick: () -> Unit
 ) {
     Card(
         modifier = modifier.fillMaxWidth().padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        onClick = onProductClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             ProductImage(product.imagen, modifier = Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium))

@@ -15,6 +15,9 @@ import com.example.proyectofinal.ui.menu.BarraLateral
 import com.example.proyectofinal.ui.menu.TiendaViewModel
 import com.example.proyectofinal.ui.menu.MenuScreen
 import com.example.proyectofinal.ui.carrito.ShoppingCartScreen
+import com.example.proyectofinal.ui.vender.CreateProductScreen
+import com.example.proyectofinal.ui.pedidos.OrdersScreen
+import com.example.proyectofinal.ui.detalle.ProductDetailScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -31,7 +34,11 @@ fun MainAppContainer() {
             BarraLateral(
                 username = uiState.username,
                 onItemClick = { item ->
-                    println("Navegando a: $item")
+                    when (item) {
+                        "Vender" -> navController.navigate("create_product")
+                        "Pedidos" -> navController.navigate("orders")
+                        "Ajustes" -> { }
+                    }
                     scope.launch { drawerState.close() }
                 }
             )
@@ -49,11 +56,40 @@ fun MainAppContainer() {
                     },
                     onOpenMenu = {
                         scope.launch { drawerState.open() }
+                    },
+                    onProductClick = { productId ->
+                        navController.navigate("product_detail/$productId")
                     }
                 )
             }
             composable("cart") {
                 ShoppingCartScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable("create_product") {
+                CreateProductScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable("orders") {
+                OrdersScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable("product_detail/{productId}") { backStackEntry ->
+                val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull() ?: 0
+                ProductDetailScreen(
+                    productId = productId,
                     viewModel = viewModel,
                     onNavigateBack = {
                         navController.popBackStack()

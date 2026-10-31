@@ -54,7 +54,7 @@ fun ShoppingCartScreen(
             if (cartItems.isNotEmpty()) {
                 CartBottomBar(
                     total = precioTotal,
-                    onCheckout = { /* Checkout logic */ },
+                    onCheckout = { viewModel.crearPedido() },
                     onClearCart = { viewModel.vaciarCarrito() }
                 )
             }
