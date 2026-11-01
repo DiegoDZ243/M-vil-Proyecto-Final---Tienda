@@ -65,7 +65,7 @@ fun ProductDetailScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = stringResource(id = producto.nombre),
+                    text = producto.nombre,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )

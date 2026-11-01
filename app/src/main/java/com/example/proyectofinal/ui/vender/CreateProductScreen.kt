@@ -98,7 +98,7 @@ fun CreateProductScreen(
                     val precioDouble = precio.toDoubleOrNull() ?: 0.0
                     val stockInt = stock.toIntOrNull() ?: 0
                     viewModel.crearProducto(
-                        nombre = R.string.app_name,
+                        nombre = nombre,
                         descripcion = descripcion,
                         precio = precioDouble,
                         categoria = categoria,

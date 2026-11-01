@@ -109,7 +109,7 @@ fun CartItem(
                 contentScale = ContentScale.Crop
             )
             Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
-                Text(text = stringResource(id = item.producto.nombre), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text( item.producto.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(text = "$%.2f".format(item.producto.precio), style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Subtotal: $%.2f".format(item.producto.precio * item.cantidad), style = MaterialTheme.typography.bodyMedium)
                 Row(verticalAlignment = Alignment.CenterVertically) {

@@ -97,12 +97,12 @@ fun MenuScreenTopAppBar(
 
 @Composable
 fun ProductInformation(
-    @StringRes productName: Int,
+    productName: String,
     productPrice: Double,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Text(text = stringResource(productName), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_small)))
+        Text(text = productName, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_small)))
         Text(text = "$%.2f".format(productPrice), style = MaterialTheme.typography.bodyLarge)
     }
 }

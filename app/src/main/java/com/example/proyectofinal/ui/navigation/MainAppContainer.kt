@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectofinal.ui.AppViewModelProvider
 import com.example.proyectofinal.ui.TiendaViewModel
 import com.example.proyectofinal.ui.menu.BarraLateral
 import com.example.proyectofinal.ui.menu.MenuScreen
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainAppContainer() {
     val navController = rememberNavController()
-    val viewModel: TiendaViewModel = viewModel()
+    val viewModel: TiendaViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState by viewModel.uiState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()

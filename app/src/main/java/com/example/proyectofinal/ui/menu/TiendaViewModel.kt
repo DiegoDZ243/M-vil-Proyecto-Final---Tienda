@@ -7,7 +7,6 @@ import com.example.inventory.data.ProductsRepository
 import com.example.proyectofinal.data.model.Pedido
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.data.model.ProductoCarrito
-import com.example.proyectofinal.data.model.productos
 import com.example.proyectofinal.ui.menu.TiendaUiState
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.Date
 
 class TiendaViewModel(
@@ -85,27 +85,43 @@ class TiendaViewModel(
     }
 
     fun crearProducto(
-        nombre: Int,
+        nombre: String,
         descripcion: String,
         precio: Double,
         categoria: String,
         stock: Int,
         imagen: Int
     ) {
-        _uiState.update { currentState ->
-            val nuevoId = (currentState.productosVendidos.maxOfOrNull { it.id } ?: 0) + 1
-            val nuevoProducto = Producto(
-                id = nuevoId,
-                nombre = nombre,
-                descripcion = descripcion,
-                precio = precio,
-                categoria = categoria,
-                stock = stock,
-                imagen = imagen
-            )
-            currentState.copy(
-                productosVendidos = currentState.productosVendidos + nuevoProducto
-            )
+        // Se necesita una corrutina para emplear las funciones de tipo suspend de Firebase
+        viewModelScope.launch {
+            try {
+                // Se genera el ID para el nuevo producto
+                val currentState = uiState.value
+                val nuevoId = (currentState.productos.maxOfOrNull { it.id } ?: 0) + 1
+
+                val nuevoProducto = Producto(
+                    id = nuevoId,
+                    nombre = nombre,
+                    descripcion = descripcion,
+                    precio = precio,
+                    categoria = categoria,
+                    stock = stock,
+                    imagen = imagen
+                )
+
+                // Se guarda en la base de datos con ayuda de repository
+                productsRepository.insertProduct(nuevoProducto)
+
+                // Con esto se actualiza la UI
+                _uiState.update { state ->
+                    state.copy(
+                        productos = state.productos + nuevoProducto
+                    )
+                }
+            } catch (e: Exception) {
+                // En caso de que haya una excepción
+                Log.e("TiendaViewModel", "Error al guardar el producto en Firebase: ${e.message}")
+            }
         }
     }
 
