@@ -33,6 +33,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding=true
     }
 }
 
@@ -61,4 +62,12 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage-ktx")
+
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.navigation:navigation-fragment:2.7.7")
+    implementation("androidx.navigation:navigation-ui:2.7.7")
+
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
 
@@ -52,16 +53,15 @@ fun ProductDetailScreen(
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                Image(
-                    painter = painterResource(id = producto.imagen),
+                AsyncImage(
+                    model = producto.imagen,
                     contentDescription = null,
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxWidth()
-                        .height(250.dp)
-                        .clip(MaterialTheme.shapes.medium),
-                    contentScale = ContentScale.Crop
+                        .size(180.dp)
+                        .clip(MaterialTheme.shapes.small),
+                    contentScale = ContentScale.Fit
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(

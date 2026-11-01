@@ -1,5 +1,6 @@
 package com.example.proyectofinal.ui
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -95,7 +96,7 @@ class TiendaViewModel(
         precio: Double,
         categoria: String,
         stock: Int,
-        imagen: Int
+        imagen: Uri?
     ) {
         // Se necesita una corrutina para emplear las funciones de tipo suspend de Firebase
         viewModelScope.launch {
@@ -103,7 +104,11 @@ class TiendaViewModel(
                 // Se genera el ID para el nuevo producto
                 val currentState = uiState.value
                 val nuevoId = (currentState.productos.maxOfOrNull { it.id } ?: 0) + 1
+                var imagenUrl= ""
 
+                if(imagen!=null) {
+                    imagenUrl = productsRepository.uploadProductImage(imagen)
+                }
                 val nuevoProducto = Producto(
                     id = nuevoId,
                     nombre = nombre,
@@ -111,7 +116,7 @@ class TiendaViewModel(
                     precio = precio,
                     categoria = categoria,
                     stock = stock,
-                    imagen = imagen
+                    imagen = imagenUrl
                 )
 
                 // Se guarda en la base de datos con ayuda de repository

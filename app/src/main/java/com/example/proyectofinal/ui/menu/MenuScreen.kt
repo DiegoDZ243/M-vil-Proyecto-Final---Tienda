@@ -21,6 +21,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
@@ -134,15 +135,17 @@ fun ProductInformation(
 
 @Composable
 fun ProductImage(
-    @DrawableRes productImage: Int,
+    productImage: String,
     modifier: Modifier = Modifier
 ) {
-    Image(
-        modifier = modifier.fillMaxWidth().size(180.dp).clip(MaterialTheme.shapes.small),
-        contentScale = ContentScale.Fit,
-        painter = painterResource(productImage),
-        contentDescription = null
-
+    AsyncImage(
+        model = productImage, // Se usa 'model' en lugar de 'painter' con AsyncImage
+        contentDescription = null,
+        modifier = modifier
+            .fillMaxWidth()
+            .size(180.dp)
+            .clip(MaterialTheme.shapes.small),
+        contentScale = ContentScale.Fit
     )
 }
 

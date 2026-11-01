@@ -45,5 +45,7 @@ interface ProductsRepository {
      */
     suspend fun updateProduct(product: Producto)
 
+    suspend fun uploadProductImage(imagenUri:Uri) : String
+
 }
 

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.proyectofinal.data.model.ProductoCarrito
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.proyectofinal.ui.TiendaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,10 +103,12 @@ fun CartItem(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = item.producto.imagen),
+            AsyncImage(
+                model = item.producto.imagen, // Se usa 'model' en lugar de 'painter' con AsyncImage
                 contentDescription = null,
-                modifier = Modifier.size(80.dp).clip(MaterialTheme.shapes.small),
+                modifier = modifier
+                    .size(100.dp)
+                    .clip(MaterialTheme.shapes.small),
                 contentScale = ContentScale.Crop
             )
             Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
