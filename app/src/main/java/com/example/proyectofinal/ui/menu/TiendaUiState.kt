@@ -9,5 +9,6 @@ data class TiendaUiState(
     val shoppingCart: List<ProductoCarrito> = emptyList(),
     val productos: List<Producto> = emptyList(),
     val productosVendidos: List<Producto> = emptyList(),
-    val pedidos: List<Pedido> = emptyList()
+    val pedidos: List<Pedido> = emptyList(),
+    val isLoading: Boolean = true
 )

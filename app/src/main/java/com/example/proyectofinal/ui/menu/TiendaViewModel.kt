@@ -29,7 +29,8 @@ class TiendaViewModel(
             username = "Usuario",
             shoppingCart = emptyList(),
             productosVendidos = emptyList(),
-            pedidos = emptyList()
+            pedidos = emptyList(),
+            isLoading = true
         )
     )
 
@@ -40,7 +41,8 @@ class TiendaViewModel(
     ) { productosFirebase, currentState ->
         // Actualiza el estado con los productos nuevos de la base de datos
         currentState.copy(
-            productos = productosFirebase
+            productos = productosFirebase,
+            isLoading = false
         )
     }.stateIn(
         scope = viewModelScope,

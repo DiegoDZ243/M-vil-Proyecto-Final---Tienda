@@ -44,16 +44,30 @@ fun MenuScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            contentPadding = innerPadding
-        ) {
-            items(uiState.productos) { producto ->
-                ProductItem(
-                    product = producto,
-                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
-                    onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
-                    onProductClick = { onProductClick(producto.id) }
+        if(uiState.isLoading){
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(50.dp)
                 )
+            }
+        }else {
+            LazyColumn(
+                contentPadding = innerPadding
+            ) {
+                items(uiState.productos) { producto ->
+                    ProductItem(
+                        product = producto,
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
+                        onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
+                        onProductClick = { onProductClick(producto.id) }
+                    )
+                }
             }
         }
     }
@@ -85,9 +99,20 @@ fun MenuScreenTopAppBar(
         },
         actions = {
             IconButton(onClick = onCartClick) {
-                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = "Carrito")
-                if (cartCount > 0) {
-                    Text(text = cartCount.toString(), modifier = Modifier.padding(start = 4.dp), style = MaterialTheme.typography.labelSmall)
+                BadgedBox(
+                    badge = {
+                        // Solo mostramos la burbuja si hay más de 0 productos
+                        if (cartCount > 0) {
+                            Badge {
+                                Text(text = cartCount.toString())
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Carrito"
+                    )
                 }
             }
         },
@@ -114,9 +139,10 @@ fun ProductImage(
 ) {
     Image(
         modifier = modifier.fillMaxWidth().size(180.dp).clip(MaterialTheme.shapes.small),
-        contentScale = ContentScale.Crop,
+        contentScale = ContentScale.Fit,
         painter = painterResource(productImage),
         contentDescription = null
+
     )
 }
 
@@ -134,7 +160,11 @@ fun ProductItem(
         onClick = onProductClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            ProductImage(product.imagen, modifier = Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium))
+            ProductImage(product.imagen,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .clip(MaterialTheme.shapes.medium))
             Spacer(modifier = Modifier.height(12.dp))
             ProductInformation(productName = product.nombre, productPrice = product.precio, modifier = Modifier.fillMaxWidth())
             Row(

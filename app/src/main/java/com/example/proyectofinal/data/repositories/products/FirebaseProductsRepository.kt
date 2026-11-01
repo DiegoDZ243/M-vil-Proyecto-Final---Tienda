@@ -1,15 +1,18 @@
 package com.example.proyectofinal.data.repositories.products
 
+import android.net.Uri
 import com.example.inventory.data.ProductsRepository
 import com.example.proyectofinal.data.model.Producto
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class FirebaseProductsRepository(
     private val databaseRef: DatabaseReference
@@ -66,4 +69,5 @@ class FirebaseProductsRepository(
         // En Firebase, hacer setValue a un nodo que ya existe lo sobrescribe (lo actualiza)
         databaseRef.child(product.id.toString()).setValue(product).await()
     }
+
 }

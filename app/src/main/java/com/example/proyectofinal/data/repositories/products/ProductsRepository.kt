@@ -16,6 +16,7 @@
 
 package com.example.inventory.data
 
+import android.net.Uri
 import com.example.proyectofinal.data.model.Producto
 import kotlinx.coroutines.flow.Flow
 interface ProductsRepository {
@@ -43,5 +44,6 @@ interface ProductsRepository {
      * Update item in the data source
      */
     suspend fun updateProduct(product: Producto)
+
 }
 

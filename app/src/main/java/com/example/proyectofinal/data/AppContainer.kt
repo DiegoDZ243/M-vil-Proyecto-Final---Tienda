@@ -7,6 +7,7 @@ import com.example.proyectofinal.data.repositories.orders.OrdersRepository
 import com.example.proyectofinal.data.repositories.products.FirebaseProductsRepository
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
+import com.google.firebase.storage.storage
 
 interface AppContainer {
     val productsRepository: ProductsRepository
