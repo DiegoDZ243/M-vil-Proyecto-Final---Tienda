@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectofinal.R
-import com.example.proyectofinal.ui.menu.TiendaViewModel
+import com.example.proyectofinal.ui.TiendaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

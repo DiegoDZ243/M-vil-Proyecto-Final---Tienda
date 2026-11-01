@@ -1,24 +1,50 @@
-package com.example.proyectofinal.ui.menu
+package com.example.proyectofinal.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.inventory.data.ProductsRepository
+import com.example.proyectofinal.data.model.Pedido
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.data.model.ProductoCarrito
-import com.example.proyectofinal.data.model.Pedido
 import com.example.proyectofinal.data.model.productos
+import com.example.proyectofinal.ui.menu.TiendaUiState
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.util.Date
 
-class TiendaViewModel: ViewModel() {
+class TiendaViewModel(
+    private val productsRepository: ProductsRepository // 1. Recibimos el repositorio
+) : ViewModel() {
     private val _uiState = MutableStateFlow(
         TiendaUiState(
             username = "Usuario",
-            productos = productos
+            shoppingCart = emptyList(),
+            productosVendidos = emptyList(),
+            pedidos = emptyList()
         )
     )
-    val uiState: StateFlow<TiendaUiState> = _uiState.asStateFlow()
+
+    // 2. Estado expuesto a la UI (Combina Firebase + Local)
+    val uiState: StateFlow<TiendaUiState> = combine(
+        productsRepository.getAllProductsStream(), // Flujo de Firebase
+        _uiState                                   // Flujo local
+    ) { productosFirebase, currentState ->
+        // Actualiza el estado con los productos nuevos de la base de datos
+        currentState.copy(
+            productos = productosFirebase
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000), // TIMEOUT_MILLIS
+        initialValue = TiendaUiState()
+    )
+
 
     fun agregarAlCarrito(producto: Producto) {
         _uiState.update { currentState ->

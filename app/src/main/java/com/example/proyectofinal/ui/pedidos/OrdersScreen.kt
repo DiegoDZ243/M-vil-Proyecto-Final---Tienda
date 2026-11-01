@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectofinal.data.model.Pedido
-import com.example.proyectofinal.ui.menu.TiendaViewModel
+import com.example.proyectofinal.ui.TiendaViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

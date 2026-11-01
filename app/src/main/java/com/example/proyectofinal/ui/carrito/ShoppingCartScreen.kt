@@ -22,8 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.proyectofinal.data.model.ProductoCarrito
-import com.example.proyectofinal.ui.menu.TiendaViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectofinal.ui.TiendaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

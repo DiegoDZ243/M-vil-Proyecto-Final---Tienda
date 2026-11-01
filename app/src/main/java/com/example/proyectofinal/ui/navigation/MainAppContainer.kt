@@ -11,8 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectofinal.ui.TiendaViewModel
 import com.example.proyectofinal.ui.menu.BarraLateral
-import com.example.proyectofinal.ui.menu.TiendaViewModel
 import com.example.proyectofinal.ui.menu.MenuScreen
 import com.example.proyectofinal.ui.carrito.ShoppingCartScreen
 import com.example.proyectofinal.ui.vender.CreateProductScreen
