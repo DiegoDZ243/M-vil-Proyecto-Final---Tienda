@@ -57,12 +57,12 @@ class FirebaseOrdersRepository(
         databaseRef.child(order.id.toString()).setValue(order).await()
     }
 
-    override suspend fun deleteOrder(product: Producto) {
-        databaseRef.child(product.id.toString()).removeValue().await()
+    override suspend fun deleteOrder(order: Pedido) {
+        databaseRef.child(order.id.toString()).removeValue().await()
     }
 
-    override suspend fun updateOrder(product: Producto) {
+    override suspend fun updateOrder(order: Pedido) {
         // En Firebase, hacer setValue a un nodo que ya existe lo sobrescribe (lo actualiza)
-        databaseRef.child(product.id.toString()).setValue(product).await()
+        databaseRef.child(order.id.toString()).setValue(order).await()
     }
 }

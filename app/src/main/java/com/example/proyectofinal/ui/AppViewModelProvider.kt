@@ -10,7 +10,8 @@ object AppViewModelProvider{
     val Factory=viewModelFactory{
         initializer{
             TiendaViewModel(
-                tiendaApplication().container.productsRepository
+                tiendaApplication().container.productsRepository,
+                tiendaApplication().container.ordersRepository
             )
         }
     }

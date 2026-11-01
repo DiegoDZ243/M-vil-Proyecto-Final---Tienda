@@ -7,6 +7,8 @@ import com.example.inventory.data.ProductsRepository
 import com.example.proyectofinal.data.model.Pedido
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.data.model.ProductoCarrito
+import com.example.proyectofinal.data.repositories.orders.FirebaseOrdersRepository
+import com.example.proyectofinal.data.repositories.orders.OrdersRepository
 import com.example.proyectofinal.ui.menu.TiendaUiState
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +21,8 @@ import kotlinx.coroutines.launch
 import java.util.Date
 
 class TiendaViewModel(
-    private val productsRepository: ProductsRepository // 1. Recibimos el repositorio
+    private val productsRepository: ProductsRepository,
+    private val ordersRepository: OrdersRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         TiendaUiState(
@@ -126,25 +129,34 @@ class TiendaViewModel(
     }
 
     fun crearPedido() {
-        _uiState.update { currentState ->
-            if (currentState.shoppingCart.isEmpty()) {
-                return@update currentState
+
+        viewModelScope.launch {
+            try{
+                val currentState=uiState.value
+                val nuevoId=(currentState.pedidos.maxOfOrNull { it.id } ?: 0) + 1
+                val total = currentState.shoppingCart.sumOf { it.producto.precio * it.cantidad }
+
+                val nuevoPedido = Pedido(
+                    id = nuevoId,
+                    fecha = Date(),
+                    estado = "Pendiente",
+                    total = total,
+                    items = currentState.shoppingCart.toList()
+                )
+                ordersRepository.insertOrder(nuevoPedido)
+
+                _uiState.update { state ->
+                    state.copy(
+                        pedidos = state.pedidos + nuevoPedido,
+                        shoppingCart = emptyList()
+                    )
+                }
+
+            }
+            catch(e: Exception){
+                Log.e("TiendaViewModel", "Error al guardar el pedido en Firebase: ${e.message}")
             }
 
-            val nuevoId = (currentState.pedidos.maxOfOrNull { it.id } ?: 0) + 1
-            val total = currentState.shoppingCart.sumOf { it.producto.precio * it.cantidad }
-            val nuevoPedido = Pedido(
-                id = nuevoId,
-                fecha = Date(),
-                estado = "Pendiente",
-                total = total,
-                items = currentState.shoppingCart.toList()
-            )
-
-            currentState.copy(
-                pedidos = currentState.pedidos + nuevoPedido,
-                shoppingCart = emptyList()
-            )
         }
     }
 }
