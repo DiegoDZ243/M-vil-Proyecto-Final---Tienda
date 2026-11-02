@@ -49,7 +49,6 @@ fun CreateProductScreen(
         }
     }
 
-    // Cargar producto para edición / limpiar al crear nuevo
     LaunchedEffect(productId) {
         if (productId == null) {
             viewModel.limpiarProductoEnEdicion()
