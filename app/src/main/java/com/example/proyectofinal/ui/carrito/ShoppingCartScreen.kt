@@ -10,9 +10,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +38,17 @@ fun ShoppingCartScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val cartItems = uiState.shoppingCart
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.carritoError) {
+        if (uiState.carritoError != null) {
+            snackbarHostState.showSnackbar(
+                message = uiState.carritoError!!,
+                actionLabel = "OK"
+            )
+            viewModel.limpiarErrorCarrito()
+        }
+    }
 
     val precioTotal = cartItems.sumOf {
         it.producto.precio * it.cantidad
@@ -60,6 +74,7 @@ fun ShoppingCartScreen(
                 )
             }
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
     ) { innerPadding ->
         if (cartItems.isEmpty()) {

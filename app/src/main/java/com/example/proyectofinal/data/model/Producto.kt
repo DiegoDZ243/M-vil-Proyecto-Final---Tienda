@@ -10,7 +10,9 @@ data class Producto(
     val precio: Double = 0.0,
     val categoria: String = "",
     val stock: Int = 0,
-    val imagen: String = ""
+    val imagen: String = "",
+    val activo: Boolean = true,
+    val vendedorId: String = ""
 )
 
 //val productos = listOf(

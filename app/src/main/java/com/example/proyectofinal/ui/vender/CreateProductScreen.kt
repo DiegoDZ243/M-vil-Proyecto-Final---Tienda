@@ -28,6 +28,7 @@ import com.example.proyectofinal.ui.TiendaViewModel
 fun CreateProductScreen(
     viewModel: TiendaViewModel = viewModel(),
     onNavigateBack: () -> Unit,
+    productId: Int? = null,
     modifier: Modifier = Modifier
 ) {
     var nombre by remember { mutableStateOf("") }
@@ -140,6 +141,7 @@ fun CreateProductScreen(
                 onClick = {
                     val precioDouble = precio.toDoubleOrNull() ?: 0.0
                     val stockInt = stock.toIntOrNull() ?: 0
+                    // TODO: Cuando se implemente FirebaseAuth, reemplazar username por el UID del usuario autenticado
                     viewModel.crearProducto(
                         nombre = nombre,
                         descripcion = descripcion,

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -56,6 +57,14 @@ fun BarraLateral(
             selected = false,
             onClick = { onItemClick("Vender") },
             icon = { Icon(imageVector = Icons.Default.Store, contentDescription = null) },
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Mis publicaciones") },
+            selected = false,
+            onClick = { onItemClick("MisPublicaciones") },
+            icon = { Icon(imageVector = Icons.Default.List, contentDescription = null) },
             modifier = Modifier.padding(horizontal = 12.dp)
         )
 

@@ -53,6 +53,14 @@ class TiendaViewModel(
 
 
     fun agregarAlCarrito(producto: Producto) {
+        // Validación de stock antes de agregar al carrito
+        val stockActual = _uiState.value.productos.find { it.id == producto.id }?.stock ?: 0
+        val cantidadEnCarrito = _uiState.value.shoppingCart.find { it.producto.id == producto.id }?.cantidad ?: 0
+        if (cantidadEnCarrito >= stockActual) {
+            _uiState.update { it.copy(carritoError = "No puedes agregar más unidades de las disponibles (stock: $stockActual)") }
+            return
+        }
+
         _uiState.update { currentState ->
             val currentCart = currentState.shoppingCart.toMutableList()
             val itemInCart = currentCart.find { it.producto.id == producto.id }
@@ -69,20 +77,29 @@ class TiendaViewModel(
     }
 
     fun cambiarCantidad(productoId: Int, delta: Int) {
-        _uiState.update { currentState ->
-            val currentCart = currentState.shoppingCart.toMutableList()
-            val index = currentCart.indexOfFirst { it.producto.id == productoId }
-
-            if (index != -1) {
-                val item = currentCart[index]
-                val nuevaCantidad = item.cantidad + delta
-                if (nuevaCantidad <= 0) {
-                    currentCart.removeAt(index)
-                } else {
-                    currentCart[index] = item.copy(cantidad = nuevaCantidad)
-                }
+        if (delta > 0) {
+            // Si incrementamos, reutilizamos agregarAlCarrito para validar stock
+            val producto = _uiState.value.productos.find { it.id == productoId }
+            if (producto != null) {
+                agregarAlCarrito(producto)
             }
-            currentState.copy(shoppingCart = currentCart)
+        } else {
+            // Si decrementamos, permitimos bajar cantidad (sin validación de stock)
+            _uiState.update { currentState ->
+                val currentCart = currentState.shoppingCart.toMutableList()
+                val index = currentCart.indexOfFirst { it.producto.id == productoId }
+
+                if (index != -1) {
+                    val item = currentCart[index]
+                    val nuevaCantidad = item.cantidad + delta
+                    if (nuevaCantidad <= 0) {
+                        currentCart.removeAt(index)
+                    } else {
+                        currentCart[index] = item.copy(cantidad = nuevaCantidad)
+                    }
+                }
+                currentState.copy(shoppingCart = currentCart)
+            }
         }
     }
 
@@ -109,6 +126,7 @@ class TiendaViewModel(
                 if(imagen!=null) {
                     imagenUrl = productsRepository.uploadProductImage(imagen)
                 }
+                // TODO: Cuando se implemente FirebaseAuth, reemplazar username por el UID del usuario autenticado
                 val nuevoProducto = Producto(
                     id = nuevoId,
                     nombre = nombre,
@@ -116,7 +134,8 @@ class TiendaViewModel(
                     precio = precio,
                     categoria = categoria,
                     stock = stock,
-                    imagen = imagenUrl
+                    imagen = imagenUrl,
+                    vendedorId = _uiState.value.username
                 )
 
                 // Se guarda en la base de datos con ayuda de repository
@@ -165,5 +184,9 @@ class TiendaViewModel(
             }
 
         }
+    }
+
+    fun limpiarErrorCarrito() {
+        _uiState.update { it.copy(carritoError = null) }
     }
 }

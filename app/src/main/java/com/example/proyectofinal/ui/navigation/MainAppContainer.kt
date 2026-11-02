@@ -19,6 +19,7 @@ import com.example.proyectofinal.ui.carrito.ShoppingCartScreen
 import com.example.proyectofinal.ui.vender.CreateProductScreen
 import com.example.proyectofinal.ui.pedidos.OrdersScreen
 import com.example.proyectofinal.ui.detalle.ProductDetailScreen
+import com.example.proyectofinal.ui.mispublicaciones.MisPublicacionesScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,6 +38,7 @@ fun MainAppContainer() {
                 onItemClick = { item ->
                     when (item) {
                         "Vender" -> navController.navigate("create_product")
+                        "MisPublicaciones" -> navController.navigate("mis_publicaciones")
                         "Pedidos" -> navController.navigate("orders")
                         "Ajustes" -> { }
                     }
@@ -79,11 +81,34 @@ fun MainAppContainer() {
                     }
                 )
             }
+            composable("create_product/{productId}") { backStackEntry ->
+                val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
+                CreateProductScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    productId = productId
+                )
+            }
             composable("orders") {
                 OrdersScreen(
                     viewModel = viewModel,
                     onNavigateBack = {
                         navController.popBackStack()
+                    }
+                )
+            }
+            composable("mis_publicaciones") {
+                MisPublicacionesScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToEdit = { productId ->
+                        navController.navigate("create_product/$productId")
+                    },
+                    onNavigateToDetail = { productId ->
+                        navController.navigate("product_detail/$productId")
                     }
                 )
             }

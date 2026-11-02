@@ -10,9 +10,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +38,17 @@ fun MenuScreen(
     onProductClick: (Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.carritoError) {
+        if (uiState.carritoError != null) {
+            snackbarHostState.showSnackbar(
+                message = uiState.carritoError!!,
+                actionLabel = "OK"
+            )
+            viewModel.limpiarErrorCarrito()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -43,7 +57,8 @@ fun MenuScreen(
                 onMenuClick = onOpenMenu,
                 onCartClick = onCartClick
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         if(uiState.isLoading){
             Box(
@@ -61,7 +76,7 @@ fun MenuScreen(
             LazyColumn(
                 contentPadding = innerPadding
             ) {
-                items(uiState.productos) { producto ->
+                items(uiState.productos.filter { it.activo }) { producto ->
                     ProductItem(
                         product = producto,
                         modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
