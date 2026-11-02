@@ -20,6 +20,7 @@ import com.example.proyectofinal.ui.vender.CreateProductScreen
 import com.example.proyectofinal.ui.pedidos.OrdersScreen
 import com.example.proyectofinal.ui.detalle.ProductDetailScreen
 import com.example.proyectofinal.ui.mispublicaciones.MisPublicacionesScreen
+import com.example.proyectofinal.ui.vender.EditProductScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -81,10 +82,9 @@ fun MainAppContainer() {
                     }
                 )
             }
-            composable("create_product/{productId}") { backStackEntry ->
+            composable("edit_product/{productId}") { backStackEntry ->
                 val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
-                CreateProductScreen(
-                    viewModel = viewModel,
+                EditProductScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     },
@@ -105,7 +105,7 @@ fun MainAppContainer() {
                         navController.popBackStack()
                     },
                     onNavigateToEdit = { productId ->
-                        navController.navigate("create_product/$productId")
+                        navController.navigate("edit_product/$productId")
                     },
                     onNavigateToDetail = { productId ->
                         navController.navigate("product_detail/$productId")

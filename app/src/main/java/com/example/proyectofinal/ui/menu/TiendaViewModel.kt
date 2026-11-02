@@ -35,14 +35,25 @@ class TiendaViewModel(
         )
     )
 
-    // 2. Estado expuesto a la UI (Combina Firebase + Local)
+    // Estado expuesto a la UI (Combina Firebase + Local)
     val uiState: StateFlow<TiendaUiState> = combine(
         productsRepository.getAllProductsStream(), // Flujo de Firebase
         _uiState                                   // Flujo local
     ) { productosFirebase, currentState ->
         // Actualiza el estado con los productos nuevos de la base de datos
+
+        val carritoActualizado = currentState.shoppingCart.map { itemCarrito ->
+            val productoFresco = productosFirebase.find { it.id == itemCarrito.producto.id }
+            if (productoFresco != null) {
+                itemCarrito.copy(producto = productoFresco)
+            } else {
+                itemCarrito
+            }
+        }
+
         currentState.copy(
             productos = productosFirebase,
+            shoppingCart = carritoActualizado,
             isLoading = false
         )
     }.stateIn(
@@ -54,7 +65,7 @@ class TiendaViewModel(
 
     fun agregarAlCarrito(producto: Producto) {
         // Validación de stock antes de agregar al carrito
-        val stockActual = _uiState.value.productos.find { it.id == producto.id }?.stock ?: 0
+        val stockActual = uiState.value.productos.find { it.id == producto.id }?.stock ?: 0
         val cantidadEnCarrito = _uiState.value.shoppingCart.find { it.producto.id == producto.id }?.cantidad ?: 0
         if (cantidadEnCarrito >= stockActual) {
             _uiState.update { it.copy(carritoError = "No puedes agregar más unidades de las disponibles (stock: $stockActual)") }
@@ -77,29 +88,38 @@ class TiendaViewModel(
     }
 
     fun cambiarCantidad(productoId: Int, delta: Int) {
-        if (delta > 0) {
-            // Si incrementamos, reutilizamos agregarAlCarrito para validar stock
-            val producto = _uiState.value.productos.find { it.id == productoId }
-            if (producto != null) {
-                agregarAlCarrito(producto)
-            }
-        } else {
-            // Si decrementamos, permitimos bajar cantidad
-            _uiState.update { currentState ->
-                val currentCart = currentState.shoppingCart.toMutableList()
-                val index = currentCart.indexOfFirst { it.producto.id == productoId }
+        _uiState.update { currentState ->
+            val currentCart = currentState.shoppingCart.toMutableList()
+            val index = currentCart.indexOfFirst { it.producto.id == productoId }
 
-                if (index != -1) {
-                    val item = currentCart[index]
-                    val nuevaCantidad = item.cantidad + delta
-                    if (nuevaCantidad <= 0) {
-                        currentCart.removeAt(index)
-                    } else {
-                        currentCart[index] = item.copy(cantidad = nuevaCantidad)
-                    }
+            if (index != -1) {
+                val item = currentCart[index]
+                val nuevaCantidad = item.cantidad + delta
+
+                if (nuevaCantidad <= 0) {
+                    currentCart.removeAt(index)
+                    return@update currentState.copy(
+                        shoppingCart = currentCart,
+                        carritoError = null
+                    )
                 }
-                currentState.copy(shoppingCart = currentCart)
+
+                else if (nuevaCantidad > item.producto.stock) {
+                    return@update currentState.copy(
+                        carritoError = "Solo hay ${item.producto.stock} unidades disponibles."
+                    )
+                }
+
+                else {
+                    currentCart[index] = item.copy(cantidad = nuevaCantidad)
+                    return@update currentState.copy(
+                        shoppingCart = currentCart,
+                        carritoError = null
+                    )
+                }
             }
+
+            currentState
         }
     }
 
@@ -170,6 +190,14 @@ class TiendaViewModel(
                     items = currentState.shoppingCart.toList()
                 )
                 ordersRepository.insertOrder(nuevoPedido)
+
+                currentState.shoppingCart.forEach { item ->
+                    val nuevoStock = item.producto.stock - item.cantidad
+                    val productoActualizado = item.producto.copy(
+                        stock = if (nuevoStock >= 0) nuevoStock else 0
+                    )
+                    productsRepository.updateProduct(productoActualizado)
+                }
 
                 _uiState.update { state ->
                     state.copy(

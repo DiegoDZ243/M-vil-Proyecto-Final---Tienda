@@ -185,6 +185,12 @@ fun ProductItem(
                     .clip(MaterialTheme.shapes.medium))
             Spacer(modifier = Modifier.height(12.dp))
             ProductInformation(productName = product.nombre, productPrice = product.precio, modifier = Modifier.fillMaxWidth())
+            Text(
+                text = if (product.stock > 0) "Disponibles: ${product.stock}" else "Agotado",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (product.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
+            )
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,

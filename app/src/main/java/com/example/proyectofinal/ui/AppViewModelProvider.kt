@@ -15,6 +15,7 @@ object AppViewModelProvider{
                 tiendaApplication().container.ordersRepository
             )
         }
+
         initializer{
             PublicacionesViewModel(
                 tiendaApplication().container.productsRepository,
