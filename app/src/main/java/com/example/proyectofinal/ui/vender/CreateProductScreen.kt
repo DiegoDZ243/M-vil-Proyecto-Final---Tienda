@@ -12,6 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +40,41 @@ fun CreateProductScreen(
     var stock by remember { mutableStateOf("") }
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val uiState by viewModel.uiState.collectAsState()
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.limpiarProductoEnEdicion()
+        }
+    }
+
+    // Cargar producto para edición / limpiar al crear nuevo
+    LaunchedEffect(productId) {
+        if (productId == null) {
+            viewModel.limpiarProductoEnEdicion()
+            nombre = ""
+            descripcion = ""
+            precio = ""
+            categoria = ""
+            stock = ""
+            imageUri = null
+        } else {
+            viewModel.cargarProductoParaEdicion(productId)
+        }
+    }
+
+    // Sincronizar campos con el producto cargado
+    LaunchedEffect(uiState.productoEnEdicion?.id) {
+        uiState.productoEnEdicion?.let { producto ->
+            nombre = producto.nombre
+            descripcion = producto.descripcion
+            precio = producto.precio.toString()
+            categoria = producto.categoria
+            stock = producto.stock.toString()
+            imageUri = Uri.parse(producto.imagen)
+        }
+    }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),

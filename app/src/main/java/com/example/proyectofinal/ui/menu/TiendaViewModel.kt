@@ -84,7 +84,7 @@ class TiendaViewModel(
                 agregarAlCarrito(producto)
             }
         } else {
-            // Si decrementamos, permitimos bajar cantidad (sin validación de stock)
+            // Si decrementamos, permitimos bajar cantidad
             _uiState.update { currentState ->
                 val currentCart = currentState.shoppingCart.toMutableList()
                 val index = currentCart.indexOfFirst { it.producto.id == productoId }
@@ -188,5 +188,23 @@ class TiendaViewModel(
 
     fun limpiarErrorCarrito() {
         _uiState.update { it.copy(carritoError = null) }
+    }
+
+    fun cargarProductoParaEdicion(id: Int) {
+        viewModelScope.launch {
+            try {
+                productsRepository.getProductStream(id).collect { producto ->
+                    if (producto != null) {
+                        _uiState.update { it.copy(productoEnEdicion = producto) }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("TiendaViewModel", "Error al cargar producto para edición: ${e.message}")
+            }
+        }
+    }
+
+    fun limpiarProductoEnEdicion() {
+        _uiState.update { it.copy(productoEnEdicion = null) }
     }
 }
