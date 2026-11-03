@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -32,6 +33,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding=true
     }
 }
 
@@ -45,6 +47,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
@@ -52,4 +57,17 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    implementation(platform("com.google.firebase:firebase-bom:33.5.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-storage-ktx")
+
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.navigation:navigation-fragment:2.7.7")
+    implementation("androidx.navigation:navigation-ui:2.7.7")
+
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
