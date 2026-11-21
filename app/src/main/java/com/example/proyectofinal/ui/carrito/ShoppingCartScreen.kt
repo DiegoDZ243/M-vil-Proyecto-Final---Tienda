@@ -92,11 +92,17 @@ fun ShoppingCartScreen(
                 contentPadding = innerPadding,
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(cartItems) { item ->
+                items(
+                    items = cartItems,
+                    key = { it.producto.id }
+                ) { item ->
                     CartItem(
                         item = item,
                         onIncrease = { viewModel.cambiarCantidad(item.producto.id, 1) },
-                        onDecrease = { viewModel.cambiarCantidad(item.producto.id, -1) }
+                        onDecrease = { viewModel.cambiarCantidad(item.producto.id, -1) },
+                        onRemove = {
+                            viewModel.cambiarCantidad(item.producto.id, -item.cantidad)
+                        }
                     )
                 }
             }
@@ -109,31 +115,77 @@ fun CartItem(
     item: ProductoCarrito,
     modifier: Modifier = Modifier,
     onIncrease: () -> Unit,
-    onDecrease: () -> Unit
+    onDecrease: () -> Unit,
+    onRemove: () -> Unit // Nuevo parámetro
 ) {
     Card(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = item.producto.imagen, // Se usa 'model' en lugar de 'painter' con AsyncImage
+                model = item.producto.imagen,
                 contentDescription = null,
-                modifier = modifier
+                modifier = Modifier
                     .size(100.dp)
                     .clip(MaterialTheme.shapes.small),
                 contentScale = ContentScale.Crop
             )
-            Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
-                Text( item.producto.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(text = "$%.2f".format(item.producto.precio), style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Subtotal: $%.2f".format(item.producto.precio * item.cantidad), style = MaterialTheme.typography.bodyMedium)
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = item.producto.nombre,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f) // Evita que un nombre largo empuje el ícono fuera de la pantalla
+                    )
+                    IconButton(
+                        onClick = onRemove,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Eliminar ${item.producto.nombre}",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+
+                Text(
+                    text = "$%.2f".format(item.producto.precio),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = "Subtotal: $%.2f".format(item.producto.precio * item.cantidad),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onDecrease) { Icon(Icons.Default.Remove, contentDescription = null) }
-                    Text(text = item.cantidad.toString(), style = MaterialTheme.typography.titleMedium)
-                    IconButton(onClick = onIncrease) { Icon(Icons.Default.Add, contentDescription = null) }
+                    IconButton(onClick = onDecrease) {
+                        Icon(Icons.Default.Remove, contentDescription = "Disminuir cantidad")
+                    }
+                    Text(
+                        text = item.cantidad.toString(),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    IconButton(onClick = onIncrease) {
+                        Icon(Icons.Default.Add, contentDescription = "Aumentar cantidad")
+                    }
                 }
             }
         }

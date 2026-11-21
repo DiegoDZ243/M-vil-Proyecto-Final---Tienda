@@ -81,7 +81,7 @@ class FirebaseProductsRepository(
             val uniqueFileName=UUID.randomUUID().toString()
 
             MediaManager.get().upload(imageUri)
-                .unsigned("ml_default") // Requisito de seguridad
+                .unsigned("ml_default") // Requisito de seguridad por parte de cloudinary
                 .option("public_id",uniqueFileName)
                 .callback(object : UploadCallback {
                     override fun onStart(requestId: String?) {}
