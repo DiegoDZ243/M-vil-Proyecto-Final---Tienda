@@ -5,6 +5,7 @@ import com.cloudinary.android.MediaManager
 import com.example.proyectofinal.data.AppContainer
 import com.example.proyectofinal.data.DefaultAppContainer
 import com.google.firebase.FirebaseApp // Asegúrate de importar esto
+import com.google.firebase.database.FirebaseDatabase
 
 class TiendaApplication : Application() {
 
@@ -13,8 +14,8 @@ class TiendaApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
 
-        // Pasamos 'this' como contexto al contenedor
         container = DefaultAppContainer(this)
 
         val config=mapOf("cloud_name" to "haprc4vu")

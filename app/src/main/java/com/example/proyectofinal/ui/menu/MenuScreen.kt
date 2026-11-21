@@ -5,9 +5,14 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.material3.SnackbarHost
@@ -15,7 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +37,16 @@ import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
 
+
+enum class PrecioFiltro(val label: String) {
+    TODOS("Todos"),
+    MENOR_PRECIO("Menor precio"),
+    MAYOR_PRECIO("Mayor precio"),
+    MENOS_DE_500("Menos de $500")
+}
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
@@ -37,8 +55,38 @@ fun MenuScreen(
     onOpenMenu: () -> Unit,
     onProductClick: (Int) -> Unit
 ) {
+
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var selectedPriceFilter by rememberSaveable { mutableStateOf(PrecioFiltro.TODOS) }
+
+    //Filtro
+    val filteredProducts = remember(uiState.productos, searchQuery, selectedPriceFilter) {
+        val baseList = uiState.productos.filter { producto ->
+            val matchesSearch = producto.activo &&
+                    producto.nombre.contains(searchQuery.trim(), ignoreCase = true)
+            val matchesPriceRange = when (selectedPriceFilter) {
+                PrecioFiltro.MENOS_DE_500 -> producto.precio < 500.0
+                else -> true
+            }
+            matchesSearch && matchesPriceRange
+        }
+
+        when (selectedPriceFilter) {
+            PrecioFiltro.MENOR_PRECIO -> baseList.sortedBy { it.precio }
+            PrecioFiltro.MAYOR_PRECIO -> baseList.sortedByDescending { it.precio }
+            else -> baseList
+        }
+    }
+
+    val listState = rememberLazyListState()
+    // Esto permite que al hacer busquedas o filtrar, se deslice automaticamente al primer Item
+    LaunchedEffect(selectedPriceFilter, searchQuery) {
+        if (filteredProducts.isNotEmpty()) {
+            listState.animateScrollToItem(0)
+        }
+    }
 
     LaunchedEffect(uiState.carritoError) {
         if (uiState.carritoError != null) {
@@ -60,29 +108,67 @@ fun MenuScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        if(uiState.isLoading){
+        if (uiState.isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(50.dp)
                 )
             }
-        }else {
-            LazyColumn(
-                contentPadding = innerPadding
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                items(uiState.productos.filter { it.activo }) { producto ->
-                    ProductItem(
-                        product = producto,
-                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
-                        onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
-                        onProductClick = { onProductClick(producto.id) }
-                    )
+                SearchBarField(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
+                )
+                PriceFilterRow(
+                    selectedFilter = selectedPriceFilter,
+                    onFilterSelected = { selectedPriceFilter = it },
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                if (filteredProducts.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (searchQuery.isBlank() && selectedPriceFilter == PrecioFiltro.TODOS)
+                                "No hay productos disponibles"
+                            else
+                                "No se encontraron productos con estos filtros",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        state=listState,
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        items(
+                            items = filteredProducts,
+                            key = { it.id }
+                        ) { producto ->
+                            ProductItem(
+                                product = producto,
+                                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
+                                onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
+                                onProductClick = { onProductClick(producto.id) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -117,7 +203,6 @@ fun MenuScreenTopAppBar(
             IconButton(onClick = onCartClick) {
                 BadgedBox(
                     badge = {
-                        // Solo mostramos la burbuja si hay más de 0 productos
                         if (cartCount > 0) {
                             Badge {
                                 Text(text = cartCount.toString())
@@ -154,7 +239,7 @@ fun ProductImage(
     modifier: Modifier = Modifier
 ) {
     AsyncImage(
-        model = productImage, // Se usa 'model' en lugar de 'painter' con AsyncImage
+        model = productImage,
         contentDescription = null,
         modifier = modifier
             .fillMaxWidth()
@@ -205,6 +290,76 @@ fun ProductItem(
                     Text("Añadir", style = MaterialTheme.typography.labelLarge)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SearchBarField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    maxLength: Int=35,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = {nuevoTexto->
+            if(nuevoTexto.length<=maxLength){
+                onQueryChange(nuevoTexto)
+            }
+        },
+        modifier = modifier,
+        placeholder = { Text("Buscar producto...") },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Buscar"
+            )
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Limpiar búsqueda"
+                    )
+                }
+            }
+        },
+        singleLine = true,
+        shape = MaterialTheme.shapes.medium
+    )
+}
+
+@Composable
+fun PriceFilterRow(
+    selectedFilter: PrecioFiltro,
+    onFilterSelected: (PrecioFiltro) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(PrecioFiltro.entries) { filtro ->
+            val isSelected = selectedFilter == filtro
+            FilterChip(
+                selected = isSelected,
+                onClick = {
+                    onFilterSelected(if (isSelected) PrecioFiltro.TODOS else filtro)
+                },
+                label = { Text(filtro.label) },
+                leadingIcon = if (isSelected) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else null
+            )
         }
     }
 }
