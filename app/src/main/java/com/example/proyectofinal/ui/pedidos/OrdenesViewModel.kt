@@ -11,19 +11,21 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 class OrdenesViewModel(
-    private val ordersRepository: OrdersRepository
+    private val ordersRepository: OrdersRepository,
+    private val usuarioActual:String
 ): ViewModel() {
 
     private val estadoUi = MutableStateFlow(
         OrdenesUiState(
             pedidos = emptyList(),
             numPedidos = 0,
-            isLoading = true
+            isLoading = true,
+            usuarioActual=usuarioActual
         )
     )
 
     val uiState:StateFlow<OrdenesUiState> = combine(
-        ordersRepository.getAllOrdersStream(),
+        ordersRepository.getOrdersByUserStream(usuarioActual),
         estadoUi
     ) { ordenesFirebase, currentState ->
 

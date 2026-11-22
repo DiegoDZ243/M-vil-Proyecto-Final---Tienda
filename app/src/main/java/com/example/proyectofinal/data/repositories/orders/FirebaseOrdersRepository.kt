@@ -66,7 +66,7 @@ class FirebaseOrdersRepository(
         databaseRef.child(order.id.toString()).setValue(order).await()
     }
 
-    override suspend fun getOrdersByUserStream(usuarioId: String): Flow<List<Pedido>> = callbackFlow {
+    override fun getOrdersByUserStream(usuarioId: String): Flow<List<Pedido>> = callbackFlow {
         val query = databaseRef
             .orderByChild("usuarioId")
             .equalTo(usuarioId)
