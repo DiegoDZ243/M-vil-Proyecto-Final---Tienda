@@ -93,7 +93,6 @@ fun MainAppContainer() {
             }
             composable("orders") {
                 OrdersScreen(
-                    viewModel = viewModel,
                     onNavigateBack = {
                         navController.popBackStack()
                     }

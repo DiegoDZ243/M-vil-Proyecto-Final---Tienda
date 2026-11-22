@@ -12,6 +12,8 @@ data class Producto(
     val stock: Int = 0,
     val imagen: String = "",
     val activo: Boolean = true,
+    val calificacion: Double=0.0,
+    val numReviews: Int = 0,
     val vendedorId: String = ""
 )
 

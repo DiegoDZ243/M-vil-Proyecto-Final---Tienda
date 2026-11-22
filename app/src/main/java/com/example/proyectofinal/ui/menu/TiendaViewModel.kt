@@ -37,8 +37,8 @@ class TiendaViewModel(
 
     // Estado expuesto a la UI (Combina Firebase + Local)
     val uiState: StateFlow<TiendaUiState> = combine(
-        productsRepository.getAllProductsStream(), // Flujo de Firebase
-        _uiState                                   // Flujo local
+        productsRepository.getAllProductsStream(),
+        _uiState
     ) { productosFirebase, currentState ->
         // Actualiza el estado con los productos nuevos de la base de datos
 
@@ -58,7 +58,7 @@ class TiendaViewModel(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000), // TIMEOUT_MILLIS
+        started = SharingStarted.WhileSubscribed(5_000),
         initialValue = TiendaUiState()
     )
 

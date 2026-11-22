@@ -65,4 +65,28 @@ class FirebaseOrdersRepository(
         // En Firebase, hacer setValue a un nodo que ya existe lo sobrescribe (lo actualiza)
         databaseRef.child(order.id.toString()).setValue(order).await()
     }
+
+    override suspend fun getOrdersByUserStream(usuarioId: String): Flow<List<Pedido>> = callbackFlow {
+        val query = databaseRef
+            .orderByChild("usuarioId")
+            .equalTo(usuarioId)
+
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val items = snapshot.children.mapNotNull {
+                    it.getValue(Pedido::class.java)
+                }
+                trySend(items)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                close(error.toException())
+            }
+        }
+
+        query.addValueEventListener(listener)
+
+        // Se ejecuta cuando el Flow deja de recolectarse
+        awaitClose { query.removeEventListener(listener) }
+    }
 }
