@@ -2,9 +2,12 @@ package com.example.proyectofinal.ui.detalle
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -65,17 +69,19 @@ fun ProductDetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
                 AsyncImage(
                     model = producto.imagen,
-                    contentDescription = null,
-                    modifier = modifier
+                    contentDescription = producto.nombre,
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .size(180.dp)
-                        .clip(MaterialTheme.shapes.small),
+                        .height(220.dp)
+                        .clip(MaterialTheme.shapes.medium),
                     contentScale = ContentScale.Fit
                 )
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
@@ -83,6 +89,27 @@ fun ProductDetailScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
+
+                // Calificación: solo se muestra si tiene al menos 1 reseña
+                if (producto.numReviews > 0) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Calificación",
+                            tint = Color(0xFFFFB300),
+                            modifier = Modifier.size(30.dp)
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            text = "%.1f (%d reseñas)".format(producto.calificacion, producto.numReviews),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -102,24 +129,17 @@ fun ProductDetailScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Categoría: ${producto.categoria}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = "Stock: ${producto.stock}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+                Text(
+                    text = if (producto.stock > 0) "Disponibles: ${producto.stock}" else "Agotado",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (producto.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = { viewModel.agregarAlCarrito(producto) },
+                    enabled = producto.stock > 0,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
@@ -128,7 +148,7 @@ fun ProductDetailScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Agregar al carrito")
+                    Text(if (producto.stock > 0) "Agregar al carrito" else "Sin stock")
                 }
             }
         } else {

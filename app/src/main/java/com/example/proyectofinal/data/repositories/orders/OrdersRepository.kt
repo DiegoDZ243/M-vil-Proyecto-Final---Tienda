@@ -10,4 +10,6 @@ interface OrdersRepository {
     suspend fun insertOrder(order: Pedido)
     suspend fun deleteOrder(order: Pedido)
     suspend fun updateOrder(order: Pedido)
+
+    fun getOrdersByUserStream(usuarioId: String): Flow<List<Pedido>>
 }

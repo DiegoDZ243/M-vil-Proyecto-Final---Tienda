@@ -15,15 +15,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectofinal.data.model.Pedido
+import com.example.proyectofinal.ui.AppViewModelProvider
 import com.example.proyectofinal.ui.TiendaViewModel
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrdersScreen(
-    viewModel: TiendaViewModel = viewModel(),
+    viewModel: OrdenesViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
