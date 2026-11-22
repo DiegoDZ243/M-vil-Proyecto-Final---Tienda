@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -40,6 +42,7 @@ import com.example.proyectofinal.ui.TiendaViewModel
 
 enum class PrecioFiltro(val label: String) {
     TODOS("Todos"),
+    MEJOR_CALIFICACION("Mejor calificados"),
     MENOR_PRECIO("Menor precio"),
     MAYOR_PRECIO("Mayor precio"),
     MENOS_DE_500("Menos de $500")
@@ -76,6 +79,7 @@ fun MenuScreen(
         when (selectedPriceFilter) {
             PrecioFiltro.MENOR_PRECIO -> baseList.sortedBy { it.precio }
             PrecioFiltro.MAYOR_PRECIO -> baseList.sortedByDescending { it.precio }
+            PrecioFiltro.MEJOR_CALIFICACION -> baseList.sortedByDescending { it.calificacion }
             else -> baseList
         }
     }
@@ -257,33 +261,73 @@ fun ProductItem(
     onProductClick: () -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         onClick = onProductClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            ProductImage(product.imagen,
+            ProductImage(
+                product.imagen,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .clip(MaterialTheme.shapes.medium))
+                    .clip(MaterialTheme.shapes.medium)
+            )
+
             Spacer(modifier = Modifier.height(12.dp))
-            ProductInformation(productName = product.nombre, productPrice = product.precio, modifier = Modifier.fillMaxWidth())
+
+            ProductInformation(
+                productName = product.nombre,
+                productPrice = product.precio,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Solo se muestra si tiene al menos 1 reseña
+            if (product.numReviews > 0) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Calificación",
+                        tint = Color(0xFFFFB300),
+                        modifier = Modifier.size(25.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "%.1f (%d)".format(product.calificacion, product.numReviews),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             Text(
                 text = if (product.stock > 0) "Disponibles: ${product.stock}" else "Agotado",
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = if (product.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 4.dp)
             )
+
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Envío gratis", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+                Text(
+                    text = "Envío gratis",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color(0xFF2E7D32)
+                )
                 Button(
                     onClick = onAgregarCarrito,
+                    enabled = product.stock > 0,
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     shape = MaterialTheme.shapes.small
                 ) {
