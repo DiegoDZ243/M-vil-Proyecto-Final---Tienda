@@ -16,6 +16,7 @@ import com.example.proyectofinal.ui.TiendaViewModel
 import com.example.proyectofinal.ui.menu.BarraLateral
 import com.example.proyectofinal.ui.menu.MenuScreen
 import com.example.proyectofinal.ui.carrito.ShoppingCartScreen
+import com.example.proyectofinal.ui.carrito.CheckoutScreen
 import com.example.proyectofinal.ui.vender.CreateProductScreen
 import com.example.proyectofinal.ui.pedidos.OrdersScreen
 import com.example.proyectofinal.ui.detalle.ProductDetailScreen
@@ -71,6 +72,25 @@ fun MainAppContainer() {
                     viewModel = viewModel,
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    onProceedToCheckout = {
+                        navController.navigate("checkout")
+                    }
+                )
+            }
+            composable("checkout") {
+                CheckoutScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onVerPedidos = {
+                        navController.navigate("orders") {
+                            popUpTo("menu")
+                        }
+                    },
+                    onSeguirComprando = {
+                        navController.popBackStack("menu", inclusive = false)
                     }
                 )
             }

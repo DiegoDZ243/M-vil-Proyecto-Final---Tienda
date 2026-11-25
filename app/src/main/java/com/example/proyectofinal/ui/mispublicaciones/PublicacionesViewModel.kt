@@ -101,4 +101,17 @@ class PublicacionesViewModel(
             }
         }
     }
+
+    // RF-18: eliminación definitiva de una publicación
+    fun eliminarPublicacion(producto: Producto, onComplete: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                productsRepository.deleteProduct(producto)
+                onComplete(true)
+            } catch (e: Exception) {
+                Log.e("PublicacionesViewModel", "Error al eliminar publicación: ${e.message}")
+                onComplete(false)
+            }
+        }
+    }
 }

@@ -6,5 +6,6 @@ data class OrdenesUiState (
     val pedidos: List<Pedido> = emptyList(),
     val numPedidos: Int = 0,
     val isLoading: Boolean = true,
-    val usuarioActual:String = ""
+    val usuarioActual: String = "",
+    val mensaje: String? = null
 )

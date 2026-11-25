@@ -8,7 +8,7 @@ import com.example.inventory.data.ProductsRepository
 import com.example.proyectofinal.data.model.Pedido
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.data.model.ProductoCarrito
-import com.example.proyectofinal.data.repositories.orders.FirebaseOrdersRepository
+import com.example.proyectofinal.data.model.EstadoPedido
 import com.example.proyectofinal.data.repositories.orders.OrdersRepository
 import com.example.proyectofinal.ui.menu.TiendaUiState
 import com.google.firebase.database.FirebaseDatabase
@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Date
+import kotlinx.coroutines.flow.first
 
 class TiendaViewModel(
     private val productsRepository: ProductsRepository,
@@ -83,7 +83,11 @@ class TiendaViewModel(
                 currentCart.add(ProductoCarrito(producto = producto, cantidad = 1))
             }
 
-            currentState.copy(shoppingCart = currentCart)
+            currentState.copy(
+                shoppingCart = currentCart,
+                carritoError = null,
+                mensaje = "\"${producto.nombre}\" agregado al carrito"
+            )
         }
     }
 
@@ -100,7 +104,8 @@ class TiendaViewModel(
                     currentCart.removeAt(index)
                     return@update currentState.copy(
                         shoppingCart = currentCart,
-                        carritoError = null
+                        carritoError = null,
+                        mensaje = "\"${item.producto.nombre}\" eliminado del carrito"
                     )
                 }
 
@@ -124,7 +129,7 @@ class TiendaViewModel(
     }
 
     fun vaciarCarrito() {
-        _uiState.update { it.copy(shoppingCart = emptyList()) }
+        _uiState.update { it.copy(shoppingCart = emptyList(), mensaje = "Carrito vaciado") }
     }
 
     fun crearProducto(
@@ -174,29 +179,56 @@ class TiendaViewModel(
         }
     }
 
-    fun crearPedido() {
-
+    /**
+     * RF-10 / RF-12: crea el pedido desde la pantalla de checkout.
+     * [onResultado] recibe el id del pedido creado, o null si falló (en ese caso se muestra un error).
+     */
+    fun crearPedido(
+        direccion: String,
+        metodoPago: String,
+        onResultado: (Int?) -> Unit = {}
+    ) {
         viewModelScope.launch {
-            try{
-                val currentState=uiState.value
-                val nuevoId=(currentState.pedidos.maxOfOrNull { it.id } ?: 0) + 1
-                val total = currentState.shoppingCart.sumOf { it.producto.precio * it.cantidad }
+            try {
+                val estadoActual = uiState.value
+                val carrito = estadoActual.shoppingCart
+                if (carrito.isEmpty()) {
+                    onResultado(null)
+                    return@launch
+                }
+
+                // Se valida el stock contra los datos más recientes antes de confirmar la compra
+                val sinStock = carrito.firstOrNull { it.cantidad > it.producto.stock }
+                if (sinStock != null) {
+                    _uiState.update {
+                        it.copy(carritoError = "\"${sinStock.producto.nombre}\" ya no tiene suficiente stock (disponible: ${sinStock.producto.stock})")
+                    }
+                    onResultado(null)
+                    return@launch
+                }
+
+                // El id se calcula con TODOS los pedidos de Firebase para no sobrescribir pedidos anteriores
+                val pedidosExistentes = ordersRepository.getAllOrdersStream().first()
+                val nuevoId = (pedidosExistentes.maxOfOrNull { it.id } ?: 0) + 1
+                val total = carrito.sumOf { it.producto.precio * it.cantidad }
 
                 val nuevoPedido = Pedido(
                     id = nuevoId,
-                    fecha = Date(),
-                    estado = "Pendiente",
+                    fecha = System.currentTimeMillis(),
+                    estado = EstadoPedido.PENDIENTE,
+                    usuarioId = estadoActual.username,
                     total = total,
-                    items = currentState.shoppingCart.toList()
+                    direccion = direccion,
+                    metodoPago = metodoPago,
+                    items = carrito.toList()
                 )
                 ordersRepository.insertOrder(nuevoPedido)
 
-                currentState.shoppingCart.forEach { item ->
+                carrito.forEach { item ->
                     val nuevoStock = item.producto.stock - item.cantidad
-                    val productoActualizado = item.producto.copy(
-                        stock = if (nuevoStock >= 0) nuevoStock else 0
+                    productsRepository.updateProduct(
+                        item.producto.copy(stock = if (nuevoStock >= 0) nuevoStock else 0)
                     )
-                    productsRepository.updateProduct(productoActualizado)
                 }
 
                 _uiState.update { state ->
@@ -205,13 +237,17 @@ class TiendaViewModel(
                         shoppingCart = emptyList()
                     )
                 }
-
-            }
-            catch(e: Exception){
+                onResultado(nuevoId)
+            } catch (e: Exception) {
                 Log.e("TiendaViewModel", "Error al guardar el pedido en Firebase: ${e.message}")
+                _uiState.update { it.copy(carritoError = "No se pudo completar la compra. Intenta de nuevo.") }
+                onResultado(null)
             }
-
         }
+    }
+
+    fun limpiarMensaje() {
+        _uiState.update { it.copy(mensaje = null) }
     }
 
     fun limpiarErrorCarrito() {

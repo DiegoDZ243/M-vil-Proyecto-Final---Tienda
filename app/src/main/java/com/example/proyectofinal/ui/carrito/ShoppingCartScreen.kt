@@ -34,6 +34,7 @@ import com.example.proyectofinal.ui.TiendaViewModel
 fun ShoppingCartScreen(
     viewModel: TiendaViewModel = viewModel(),
     onNavigateBack: () -> Unit,
+    onProceedToCheckout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -47,6 +48,14 @@ fun ShoppingCartScreen(
                 actionLabel = "OK"
             )
             viewModel.limpiarErrorCarrito()
+        }
+    }
+
+    // RF-11: confirmaciones de éxito (producto eliminado, carrito vaciado)
+    LaunchedEffect(uiState.mensaje) {
+        uiState.mensaje?.let { mensaje ->
+            snackbarHostState.showSnackbar(message = mensaje, duration = SnackbarDuration.Short)
+            viewModel.limpiarMensaje()
         }
     }
 
@@ -69,7 +78,7 @@ fun ShoppingCartScreen(
             if (cartItems.isNotEmpty()) {
                 CartBottomBar(
                     total = precioTotal,
-                    onCheckout = { viewModel.crearPedido() },
+                    onCheckout = onProceedToCheckout,
                     onClearCart = { viewModel.vaciarCarrito() }
                 )
             }

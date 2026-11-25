@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
+import com.example.proyectofinal.ui.components.RatingBar
 
 
 enum class PrecioFiltro(val label: String) {
@@ -89,6 +90,14 @@ fun MenuScreen(
     LaunchedEffect(selectedPriceFilter, searchQuery) {
         if (filteredProducts.isNotEmpty()) {
             listState.animateScrollToItem(0)
+        }
+    }
+
+    // RF-11: confirmación al agregar al carrito
+    LaunchedEffect(uiState.mensaje) {
+        uiState.mensaje?.let { mensaje ->
+            snackbarHostState.showSnackbar(message = mensaje, duration = SnackbarDuration.Short)
+            viewModel.limpiarMensaje()
         }
     }
 
@@ -285,25 +294,13 @@ fun ProductItem(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Solo se muestra si tiene al menos 1 reseña
+            // RF-19: calificación de 1 a 5 (solo si tiene al menos 1 reseña)
             if (product.numReviews > 0) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                RatingBar(
+                    calificacion = product.calificacion,
+                    numReviews = product.numReviews,
                     modifier = Modifier.padding(top = 4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Calificación",
-                        tint = Color(0xFFFFB300),
-                        modifier = Modifier.size(25.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "%.1f (%d)".format(product.calificacion, product.numReviews),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                )
             }
 
             Text(
