@@ -6,6 +6,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -17,6 +21,8 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.window.core.layout.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
@@ -33,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.proyectofinal.R
@@ -57,7 +64,8 @@ fun MenuScreen(
     viewModel: TiendaViewModel,
     onCartClick: () -> Unit,
     onOpenMenu: () -> Unit,
-    onProductClick: (Int) -> Unit
+    onProductClick: (Int) -> Unit,
+    showMenuButton: Boolean = true
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
@@ -85,11 +93,23 @@ fun MenuScreen(
         }
     }
 
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val productColumns = when {
+        windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> 3
+        windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> 2
+        else -> 1
+    }
+
     val listState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
     // Esto permite que al hacer busquedas o filtrar, se deslice automaticamente al primer Item
     LaunchedEffect(selectedPriceFilter, searchQuery) {
         if (filteredProducts.isNotEmpty()) {
-            listState.animateScrollToItem(0)
+            if (productColumns == 1) {
+                listState.animateScrollToItem(0)
+            } else {
+                gridState.animateScrollToItem(0)
+            }
         }
     }
 
@@ -116,7 +136,8 @@ fun MenuScreen(
             MenuScreenTopAppBar(
                 cartCount = uiState.shoppingCart.sumOf { it.cantidad },
                 onMenuClick = onOpenMenu,
-                onCartClick = onCartClick
+                onCartClick = onCartClick,
+                showMenuButton = showMenuButton
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -165,9 +186,9 @@ fun MenuScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                } else {
+                } else if (productColumns == 1) {
                     LazyColumn(
-                        state=listState,
+                        state = listState,
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(
@@ -177,6 +198,26 @@ fun MenuScreen(
                             ProductItem(
                                 product = producto,
                                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
+                                onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
+                                onProductClick = { onProductClick(producto.id) }
+                            )
+                        }
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(productColumns),
+                        state = gridState,
+                        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(
+                            items = filteredProducts,
+                            key = { it.id }
+                        ) { producto ->
+                            ProductGridItem(
+                                product = producto,
                                 onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
                                 onProductClick = { onProductClick(producto.id) }
                             )
@@ -194,12 +235,15 @@ fun MenuScreenTopAppBar(
     onMenuClick: () -> Unit,
     onCartClick: () -> Unit,
     cartCount: Int,
+    showMenuButton: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = onMenuClick) {
-                Icon(imageVector = Icons.Default.Menu, contentDescription = "Abrir menú")
+            if (showMenuButton) {
+                IconButton(onClick = onMenuClick) {
+                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Abrir menú")
+                }
             }
         },
         title = {
@@ -330,6 +374,90 @@ fun ProductItem(
                 ) {
                     Text("Añadir", style = MaterialTheme.typography.labelLarge)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductGridItem(
+    product: Producto,
+    modifier: Modifier = Modifier,
+    onAgregarCarrito: () -> Unit,
+    onProductClick: () -> Unit
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        onClick = onProductClick
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            AsyncImage(
+                model = product.imagen,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+                    .clip(MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = product.nombre,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "$%.2f".format(product.precio),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            if (product.numReviews > 0) {
+                RatingBar(
+                    calificacion = product.calificacion,
+                    numReviews = product.numReviews,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            Text(
+                text = if (product.stock > 0) "Disponibles: ${product.stock}" else "Agotado",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (product.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            Text(
+                text = "Envío gratis",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF2E7D32),
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Button(
+                onClick = onAgregarCarrito,
+                enabled = product.stock > 0,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text("Añadir", style = MaterialTheme.typography.labelLarge)
             }
         }
     }

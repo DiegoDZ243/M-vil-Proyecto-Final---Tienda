@@ -116,17 +116,24 @@ fun OrdersScreen(
                 }
             }
         } else {
-            LazyColumn(
-                contentPadding = innerPadding,
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                items(pedidos, key = { it.id }) { pedido ->
-                    OrderItem(
-                        pedido = pedido,
-                        onCancelar = { pedidoACancelar = pedido },
-                        onFinalizar = { viewModel.finalizarPedido(pedido) },
-                        onCalificar = { item -> calificando = pedido to item }
-                    )
+                LazyColumn(
+                    contentPadding = innerPadding,
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxSize()
+                ) {
+                    items(pedidos, key = { it.id }) { pedido ->
+                        OrderItem(
+                            pedido = pedido,
+                            onCancelar = { pedidoACancelar = pedido },
+                            onFinalizar = { viewModel.finalizarPedido(pedido) },
+                            onCalificar = { item -> calificando = pedido to item }
+                        )
+                    }
                 }
             }
         }

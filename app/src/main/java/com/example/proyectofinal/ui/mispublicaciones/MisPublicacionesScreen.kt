@@ -81,25 +81,32 @@ fun MisPublicacionesScreen(
                 }
             }
         } else {
-            LazyColumn(
-                contentPadding = innerPadding,
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                items(uiState.productos) { producto ->
-                    PublicacionItem(
-                        producto = producto,
-                        onEdit = { onNavigateToEdit(producto.id) },
-                        onToggleActivo = {
-                            if (producto.activo) {
-                                productoADesactivar = producto
-                                showDesactivarDialog = true
-                            } else {
-                                viewModel.activarPublicacion(producto)
-                            }
-                        },
-                        onVerDetalle = { onNavigateToDetail(producto.id) },
-                        onEliminar = { productoAEliminar = producto }
-                    )
+                LazyColumn(
+                    contentPadding = innerPadding,
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxSize()
+                ) {
+                    items(uiState.productos) { producto ->
+                        PublicacionItem(
+                            producto = producto,
+                            onEdit = { onNavigateToEdit(producto.id) },
+                            onToggleActivo = {
+                                if (producto.activo) {
+                                    productoADesactivar = producto
+                                    showDesactivarDialog = true
+                                } else {
+                                    viewModel.activarPublicacion(producto)
+                                }
+                            },
+                            onVerDetalle = { onNavigateToDetail(producto.id) },
+                            onEliminar = { productoAEliminar = producto }
+                        )
+                    }
                 }
             }
         }

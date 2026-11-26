@@ -97,22 +97,29 @@ fun ShoppingCartScreen(
                 }
             }
         } else {
-            LazyColumn(
-                contentPadding = innerPadding,
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                items(
-                    items = cartItems,
-                    key = { it.producto.id }
-                ) { item ->
-                    CartItem(
-                        item = item,
-                        onIncrease = { viewModel.cambiarCantidad(item.producto.id, 1) },
-                        onDecrease = { viewModel.cambiarCantidad(item.producto.id, -1) },
-                        onRemove = {
-                            viewModel.cambiarCantidad(item.producto.id, -item.cantidad)
-                        }
-                    )
+                LazyColumn(
+                    contentPadding = innerPadding,
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxSize()
+                ) {
+                    items(
+                        items = cartItems,
+                        key = { it.producto.id }
+                    ) { item ->
+                        CartItem(
+                            item = item,
+                            onIncrease = { viewModel.cambiarCantidad(item.producto.id, 1) },
+                            onDecrease = { viewModel.cambiarCantidad(item.producto.id, -1) },
+                            onRemove = {
+                                viewModel.cambiarCantidad(item.producto.id, -item.cantidad)
+                            }
+                        )
+                    }
                 }
             }
         }
