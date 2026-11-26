@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Store
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -81,6 +83,16 @@ fun BarraLateral(
             selected = false,
             onClick = { onItemClick("Ajustes") },
             icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = null) },
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp))
+
+        NavigationDrawerItem(
+            label = { Text("Cerrar sesión") },
+            selected = false,
+            onClick = { onItemClick("CerrarSesion") },
+            icon = { Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión") },
             modifier = Modifier.padding(horizontal = 12.dp)
         )
     }

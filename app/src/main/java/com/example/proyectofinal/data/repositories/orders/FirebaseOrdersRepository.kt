@@ -19,7 +19,7 @@ class FirebaseOrdersRepository(
             override fun onDataChange(snapshot: DataSnapshot) {
                 // Mapeamos los nodos de Firebase a la lista de Productos
                 val items = snapshot.children.mapNotNull {
-                    it.getValue(Pedido::class.java)
+                    runCatching { it.getValue(Pedido::class.java) }.getOrNull()
                 }
                 trySend(items)
             }
@@ -74,7 +74,7 @@ class FirebaseOrdersRepository(
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val items = snapshot.children.mapNotNull {
-                    it.getValue(Pedido::class.java)
+                    runCatching { it.getValue(Pedido::class.java) }.getOrNull()
                 }
                 trySend(items)
             }
