@@ -91,6 +91,9 @@
     <string name="ir_a_tienda">Aller au magasin</string>
     <string name="sin_review">Aucun avis</string>
 
+    <string name="offline_banner_message">Aucune connexion Internet. Vous êtes en mode hors ligne</string>
+    <string name="offline_banner_icon_desc">Hors ligne</string>
+
     <!-- Commandes -->
     <string name="ordenes_titulo">Mes commandes</string>
     <string name="pedido_num">Commande n°</string>

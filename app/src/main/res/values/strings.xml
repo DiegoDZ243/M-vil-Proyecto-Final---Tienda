@@ -104,6 +104,10 @@
     <string name="calificar_producto">Calificar producto</string>
     <string name="calificado">Calificado</string>
 
+    <!-- Para el banner de Sin conexión -->
+    <string name="offline_banner_message">Sin conexión a Internet. Estás en modo offline</string>
+    <string name="offline_banner_icon_desc">Sin conexión</string>
+
     <!-- Selector de Idiomas -->
     <string name="seleccionar_idioma">Seleccionar idioma</string>
     <string name="idioma_es">Español</string>

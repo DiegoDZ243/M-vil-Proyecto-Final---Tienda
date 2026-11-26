@@ -282,7 +282,7 @@ fun OrderItem(
                     fontWeight = FontWeight.Bold
                 )
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (pedido.puedeCancelarse()) {
                         OutlinedButton(
                             onClick = onCancelar,
