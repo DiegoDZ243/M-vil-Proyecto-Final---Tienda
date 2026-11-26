@@ -527,4 +527,27 @@ fun PriceFilterRow(
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        contentPadding =
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(PrecioFiltro.entries) { filtro ->
+            val isSelected = selectedFilter == filtro
+            FilterChip(
+                selected = isSelected,
+                onClick = {
+                    onFilterSelected(if (isSelected) PrecioFiltro.TODOS else filtro)
+                },
+                label = { Text(stringResource(filtro.labelRes)) },
+                leadingIcon = if (isSelected) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else null
+            )
+        }
+    }
+}
