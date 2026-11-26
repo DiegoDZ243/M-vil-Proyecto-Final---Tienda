@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
+import com.example.proyectofinal.ui.components.RatingBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +40,14 @@ fun ProductDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val producto = uiState.productos.find { it.id == productId }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // RF-11: confirmación al agregar al carrito
+    LaunchedEffect(uiState.mensaje) {
+        uiState.mensaje?.let { mensaje ->
+            snackbarHostState.showSnackbar(message = mensaje, duration = SnackbarDuration.Short)
+            viewModel.limpiarMensaje()
+        }
+    }
 
     LaunchedEffect(uiState.carritoError) {
         if (uiState.carritoError != null) {
@@ -90,26 +99,13 @@ fun ProductDetailScreen(
                     fontWeight = FontWeight.Bold
                 )
 
-                // Calificación: solo se muestra si tiene al menos 1 reseña
-                if (producto.numReviews > 0) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 6.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Calificación",
-                            tint = Color(0xFFFFB300),
-                            modifier = Modifier.size(30.dp)
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            text = "%.1f (%d reseñas)".format(producto.calificacion, producto.numReviews),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                // RF-19: calificación de 1 a 5
+                RatingBar(
+                    calificacion = producto.calificacion,
+                    numReviews = producto.numReviews,
+                    starSize = 28.dp,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
