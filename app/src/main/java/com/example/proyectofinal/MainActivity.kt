@@ -1,7 +1,7 @@
 package com.example.proyectofinal
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 
 sealed class Routes(val ruta: String) {
@@ -11,7 +11,7 @@ sealed class Routes(val ruta: String) {
     object Ajustes : Routes("ajustes")
 }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
