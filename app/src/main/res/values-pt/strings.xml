@@ -91,6 +91,9 @@
     <string name="ir_a_tienda">Ir para a loja</string>
     <string name="sin_review">Sem avaliações</string>
 
+    <string name="offline_banner_message">Sem conexão com a Internet. Você está no modo offline</string>
+    <string name="offline_banner_icon_desc">Sem conexão</string>
+
     <!-- Pedidos -->
     <string name="ordenes_titulo">Meus pedidos</string>
     <string name="pedido_num">Pedido #</string>

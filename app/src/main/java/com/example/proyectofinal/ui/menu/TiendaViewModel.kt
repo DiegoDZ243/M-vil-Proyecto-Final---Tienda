@@ -51,25 +51,17 @@ class TiendaViewModel(
         }
     }
 
-    // Estado expuesto a la UI (Combina Firebase + Local)
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<TiendaUiState> = combine(
-        accountService.currentUser.flatMapLatest { usuario ->
-            if (usuario != null) {
-                productsRepository.getAllProductsStream()
-                    .catch { e ->
-                        Log.e("TiendaViewModel", "Error al leer productos: ${e.message}")
-                        emit(emptyList())
-                    }
-            } else {
-                // Si aún no hay sesión iniciada, devuelve lista vacía sin consultar Firebase
-                flowOf(emptyList())
-            }
-        },
+        productsRepository.getAllProductsStream()
+            .catch { e ->
+                Log.e("TiendaViewModel", "Error al leer productos: ${e.message}")
+                emit(emptyList())
+            },
         _uiState
-    ) { productosFirebase, currentState ->
+    ) { productosLocales, currentState ->
         val carritoActualizado = currentState.shoppingCart.map { itemCarrito ->
-            val productoFresco = productosFirebase.find { it.id == itemCarrito.producto.id }
+            val productoFresco = productosLocales.find { it.id == itemCarrito.producto.id }
             if (productoFresco != null) {
                 itemCarrito.copy(producto = productoFresco)
             } else {
@@ -78,7 +70,7 @@ class TiendaViewModel(
         }
 
         currentState.copy(
-            productos = productosFirebase,
+            productos = productosLocales,
             shoppingCart = carritoActualizado,
             isLoading = false
         )

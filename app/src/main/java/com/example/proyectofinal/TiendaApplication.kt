@@ -14,7 +14,6 @@ class TiendaApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
 
         container = DefaultAppContainer(this)
 
