@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.lifecycle.viewmodel.initializer
 import com.example.proyectofinal.TiendaApplication
+import com.example.proyectofinal.ui.auth.AuthViewModel
 import com.example.proyectofinal.ui.mispublicaciones.PublicacionesViewModel
 import com.example.proyectofinal.ui.pedidos.OrdenesViewModel
 
@@ -30,6 +31,10 @@ object AppViewModelProvider{
                 tiendaApplication().container.productsRepository,
                 "Usuario"
             )
+        }
+
+        initializer {
+            AuthViewModel()
         }
     }
 }

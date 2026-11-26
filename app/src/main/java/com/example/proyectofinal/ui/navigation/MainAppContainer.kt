@@ -13,6 +13,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectofinal.ui.AppViewModelProvider
 import com.example.proyectofinal.ui.TiendaViewModel
+import com.example.proyectofinal.ui.auth.LoginScreen
+import com.example.proyectofinal.ui.auth.RegisterScreen
 import com.example.proyectofinal.ui.menu.BarraLateral
 import com.example.proyectofinal.ui.menu.MenuScreen
 import com.example.proyectofinal.ui.carrito.ShoppingCartScreen
@@ -138,6 +140,26 @@ fun MainAppContainer() {
                     viewModel = viewModel,
                     onNavigateBack = {
                         navController.popBackStack()
+                    }
+                )
+            }
+            composable("login") {
+                LoginScreen(
+                    onNavigateToRegister = {
+                        navController.navigate("register")
+                    },
+                    onLoginSuccess = {
+                        // navegacion
+                    }
+                )
+            }
+            composable("register") {
+                RegisterScreen(
+                    onNavigateToLogin = {
+                        navController.popBackStack()
+                    },
+                    onRegisterSuccess = {
+                        // navegacion
                     }
                 )
             }
