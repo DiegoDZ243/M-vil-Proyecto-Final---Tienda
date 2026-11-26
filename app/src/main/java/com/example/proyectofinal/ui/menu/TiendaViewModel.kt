@@ -12,11 +12,15 @@ import com.example.proyectofinal.data.model.ProductoCarrito
 import com.example.proyectofinal.data.model.service.AccountService
 import com.example.proyectofinal.data.repositories.orders.OrdersRepository
 import com.example.proyectofinal.ui.menu.TiendaUiState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -48,8 +52,20 @@ class TiendaViewModel(
     }
 
     // Estado expuesto a la UI (Combina Firebase + Local)
+    @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<TiendaUiState> = combine(
-        productsRepository.getAllProductsStream(),
+        accountService.currentUser.flatMapLatest { usuario ->
+            if (usuario != null) {
+                productsRepository.getAllProductsStream()
+                    .catch { e ->
+                        Log.e("TiendaViewModel", "Error al leer productos: ${e.message}")
+                        emit(emptyList())
+                    }
+            } else {
+                // Si aún no hay sesión iniciada, devuelve lista vacía sin consultar Firebase
+                flowOf(emptyList())
+            }
+        },
         _uiState
     ) { productosFirebase, currentState ->
         val carritoActualizado = currentState.shoppingCart.map { itemCarrito ->

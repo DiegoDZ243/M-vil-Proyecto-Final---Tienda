@@ -1,11 +1,24 @@
 package com.example.proyectofinal.ui.menu
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -14,13 +27,30 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,23 +63,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
 import coil.compose.AsyncImage
 import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
 import com.example.proyectofinal.ui.components.RatingBar
 
-
-enum class PrecioFiltro(val label: String) {
-    TODOS("Todos"),
-    MEJOR_CALIFICACION("Mejor calificados"),
-    MENOR_PRECIO("Menor precio"),
-    MAYOR_PRECIO("Mayor precio"),
-    MENOS_DE_500("Menos de $500")
+enum class PrecioFiltro(val labelRes: Int) {
+    TODOS(R.string.filtro_todos),
+    MEJOR_CALIFICACION(R.string.filtro_mejor_calificados),
+    MENOR_PRECIO(R.string.filtro_menor_precio),
+    MAYOR_PRECIO(R.string.filtro_mayor_precio),
+    MENOS_DE_500(R.string.filtro_menos_500)
 }
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,15 +86,14 @@ fun MenuScreen(
     viewModel: TiendaViewModel,
     onCartClick: () -> Unit,
     onOpenMenu: () -> Unit,
-    onProductClick: (Int) -> Unit
+    onProductClick: (Int) -> Unit,
+    showMenuButton: Boolean = true
 ) {
-
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedPriceFilter by rememberSaveable { mutableStateOf(PrecioFiltro.TODOS) }
 
-    //Filtro
     val filteredProducts = remember(uiState.productos, searchQuery, selectedPriceFilter) {
         val baseList = uiState.productos.filter { producto ->
             val matchesSearch = producto.activo &&
@@ -85,15 +113,27 @@ fun MenuScreen(
         }
     }
 
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val productColumns = when {
+        windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> 3
+        windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> 2
+        else -> 1
+    }
+
     val listState = rememberLazyListState()
-    // Esto permite que al hacer busquedas o filtrar, se deslice automaticamente al primer Item
+    val gridState = rememberLazyGridState()
+
+    // Esto permite que al hacer búsquedas o filtrar, se deslice automáticamente al primer ítem
     LaunchedEffect(selectedPriceFilter, searchQuery) {
         if (filteredProducts.isNotEmpty()) {
-            listState.animateScrollToItem(0)
+            if (productColumns == 1) {
+                listState.animateScrollToItem(0)
+            } else {
+                gridState.animateScrollToItem(0)
+            }
         }
     }
 
-    // RF-11: confirmación al agregar al carrito
     LaunchedEffect(uiState.mensaje) {
         uiState.mensaje?.let { mensaje ->
             snackbarHostState.showSnackbar(message = mensaje, duration = SnackbarDuration.Short)
@@ -116,7 +156,8 @@ fun MenuScreen(
             MenuScreenTopAppBar(
                 cartCount = uiState.shoppingCart.sumOf { it.cantidad },
                 onMenuClick = onOpenMenu,
-                onCartClick = onCartClick
+                onCartClick = onCartClick,
+                showMenuButton = showMenuButton
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -158,16 +199,16 @@ fun MenuScreen(
                     ) {
                         Text(
                             text = if (searchQuery.isBlank() && selectedPriceFilter == PrecioFiltro.TODOS)
-                                "No hay productos disponibles"
+                                stringResource(R.string.sin_productos)
                             else
-                                "No se encontraron productos con estos filtros",
+                                stringResource(R.string.sin_productos_filtros),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                } else {
+                } else if (productColumns == 1) {
                     LazyColumn(
-                        state=listState,
+                        state = listState,
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(
@@ -177,6 +218,26 @@ fun MenuScreen(
                             ProductItem(
                                 product = producto,
                                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
+                                onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
+                                onProductClick = { onProductClick(producto.id) }
+                            )
+                        }
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(productColumns),
+                        state = gridState,
+                        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(
+                            items = filteredProducts,
+                            key = { it.id }
+                        ) { producto ->
+                            ProductGridItem(
+                                product = producto,
                                 onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
                                 onProductClick = { onProductClick(producto.id) }
                             )
@@ -194,12 +255,15 @@ fun MenuScreenTopAppBar(
     onMenuClick: () -> Unit,
     onCartClick: () -> Unit,
     cartCount: Int,
+    showMenuButton: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = onMenuClick) {
-                Icon(imageVector = Icons.Default.Menu, contentDescription = "Abrir menú")
+            if (showMenuButton) {
+                IconButton(onClick = onMenuClick) {
+                    Icon(imageVector = Icons.Default.Menu, contentDescription = null)
+                }
             }
         },
         title = {
@@ -225,7 +289,7 @@ fun MenuScreenTopAppBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = "Carrito"
+                        contentDescription = stringResource(R.string.carrito)
                     )
                 }
             }
@@ -242,7 +306,7 @@ fun ProductInformation(
 ) {
     Column(modifier = modifier) {
         Text(text = productName, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_small)))
-        Text(text = "$%.2f".format(productPrice), style = MaterialTheme.typography.bodyLarge)
+        Text(text = "\$%.2f".format(productPrice), style = MaterialTheme.typography.bodyLarge)
     }
 }
 
@@ -294,7 +358,6 @@ fun ProductItem(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // RF-19: calificación de 1 a 5 (solo si tiene al menos 1 reseña)
             if (product.numReviews > 0) {
                 RatingBar(
                     calificacion = product.calificacion,
@@ -304,7 +367,7 @@ fun ProductItem(
             }
 
             Text(
-                text = if (product.stock > 0) "Disponibles: ${product.stock}" else "Agotado",
+                text = if (product.stock > 0) stringResource(R.string.disponibles_count, product.stock) else stringResource(R.string.agotado),
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (product.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 4.dp)
@@ -318,7 +381,7 @@ fun ProductItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Envío gratis",
+                    text = stringResource(R.string.envio_gratis),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFF2E7D32)
                 )
@@ -328,8 +391,92 @@ fun ProductItem(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     shape = MaterialTheme.shapes.small
                 ) {
-                    Text("Añadir", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.agregar_al_carrito), style = MaterialTheme.typography.labelLarge)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductGridItem(
+    product: Producto,
+    modifier: Modifier = Modifier,
+    onAgregarCarrito: () -> Unit,
+    onProductClick: () -> Unit
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        onClick = onProductClick
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            AsyncImage(
+                model = product.imagen,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+                    .clip(MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = product.nombre,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "\$%.2f".format(product.precio),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            if (product.numReviews > 0) {
+                RatingBar(
+                    calificacion = product.calificacion,
+                    numReviews = product.numReviews,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            Text(
+                text = if (product.stock > 0) stringResource(R.string.disponibles_count, product.stock) else stringResource(R.string.agotado),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (product.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.envio_gratis),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF2E7D32),
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Button(
+                onClick = onAgregarCarrito,
+                enabled = product.stock > 0,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text(stringResource(R.string.agregar_al_carrito), style = MaterialTheme.typography.labelLarge)
             }
         }
     }
@@ -339,22 +486,22 @@ fun ProductItem(
 fun SearchBarField(
     query: String,
     onQueryChange: (String) -> Unit,
-    maxLength: Int=35,
+    maxLength: Int = 35,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         value = query,
-        onValueChange = {nuevoTexto->
-            if(nuevoTexto.length<=maxLength){
+        onValueChange = { nuevoTexto ->
+            if (nuevoTexto.length <= maxLength) {
                 onQueryChange(nuevoTexto)
             }
         },
         modifier = modifier,
-        placeholder = { Text("Buscar producto...") },
+        placeholder = { Text(stringResource(R.string.buscar_producto)) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Buscar"
+                contentDescription = null
             )
         },
         trailingIcon = {
@@ -362,7 +509,7 @@ fun SearchBarField(
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "Limpiar búsqueda"
+                        contentDescription = null
                     )
                 }
             }
@@ -390,7 +537,7 @@ fun PriceFilterRow(
                 onClick = {
                     onFilterSelected(if (isSelected) PrecioFiltro.TODOS else filtro)
                 },
-                label = { Text(filtro.label) },
+                label = { Text(stringResource(filtro.labelRes)) },
                 leadingIcon = if (isSelected) {
                     {
                         Icon(
