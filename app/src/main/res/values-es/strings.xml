@@ -1,0 +1,117 @@
+<resources>
+    <string name="app_name">UrianShopping</string>
+
+    <!-- Autenticación -->
+    <string name="inicia_sesion">Iniciar sesión</string>
+    <string name="crear_cuenta">Crear cuenta</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="confirmar_password">Confirmar contraseña</string>
+    <string name="nombre_completo">Nombre completo</string>
+    <string name="calle">Calle</string>
+    <string name="numero_exterior">Número exterior</string>
+    <string name="colonia">Colonia</string>
+    <string name="codigo_postal">Código postal</string>
+    <string name="sin_cuenta">¿No tienes cuenta? Regístrate</string>
+    <string name="ya_tienes_cuenta">¿Ya tienes cuenta? Inicia sesión</string>
+    <string name="completa_datos">Completa tus datos para registrarte</string>
+    <string name="enter_email">Ingresa tu correo electrónico</string>
+    <string name="enter_password">Ingresa tu contraseña</string>
+
+    <!-- Menú y Navegación -->
+    <string name="vender">Comenzar a vender</string>
+    <string name="mis_publicaciones">Mis publicaciones</string>
+    <string name="mis_pedidos">Mis pedidos</string>
+    <string name="ajustes">Ajustes</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+    <string name="buscar_producto">Buscar producto...</string>
+    <string name="todas_categorias">Todas las categorías</string>
+    <string name="carrito">Carrito</string>
+    <string name="sin_productos">No hay productos disponibles</string>
+    <string name="sin_productos_filtros">No se encontraron productos con estos filtros</string>
+
+    <!-- Filtros de Precio -->
+    <string name="filtro_todos">Todos</string>
+    <string name="filtro_mejor_calificados">Mejor calificados</string>
+    <string name="filtro_menor_precio">Menor precio</string>
+    <string name="filtro_mayor_precio">Mayor precio</string>
+    <string name="filtro_menos_500">Menos de $500</string>
+
+    <!-- Carrito y Checkout -->
+    <string name="carrito_compras">Carrito de compras</string>
+    <string name="vaciar_carrito">Vaciar carrito</string>
+    <string name="proceder_pago">Proceder al pago</string>
+    <string name="carrito_vacio">Tu carrito está vacío</string>
+    <string name="checkout_titulo">Confirmar compra</string>
+    <string name="resumen_pedido">Resumen del pedido</string>
+    <string name="direccion_envio">Dirección de envío</string>
+    <string name="metodo_pago">Método de pago</string>
+    <string name="tarjeta_credito">Tarjeta de crédito / débito</string>
+    <string name="efectivo">Pago en efectivo</string>
+    <string name="confirmar_compra">Confirmar y pagar</string>
+    <string name="total">Total</string>
+    <string name="pedido_exitoso">¡Pedido realizado con éxito!</string>
+    <string name="ver_mis_pedidos">Ver mis pedidos</string>
+    <string name="seguir_comprando">Seguir comprando</string>
+
+    <!-- Productos y Detalle -->
+    <string name="crear_producto">Crear producto</string>
+    <string name="editar_producto">Editar producto</string>
+    <string name="nombre_producto">Nombre del producto</string>
+    <string name="descripcion">Descripción</string>
+    <string name="precio">Precio ($)</string>
+    <string name="categoria">Categoría</string>
+    <string name="stock">Stock / Unidades disponibles</string>
+    <string name="subir_imagen">Subir imagen</string>
+    <string name="guardar">Guardar</string>
+    <string name="desactivar">Desactivar</string>
+    <string name="activar">Activar</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="confirmar_eliminar">¿Seguro que deseas eliminar esta publicación?</string>
+    <string name="disponible">Disponible</string>
+    <string name="disponibles_count">Disponibles: %1$d</string>
+    <string name="agotado">Agotado</string>
+    <string name="envio_gratis">Envío gratis</string>
+    <string name="agregar_al_carrito">Agregar al carrito</string>
+    <string name="resenas">Reseñas</string>
+    <string name="detalle_producto">Detalle del producto</string>
+    <string name="sin_stock">Sin stock</string>
+    <string name="producto_no_encontrado">Producto no encontrado</string>
+
+    <!-- Mis Publicaciones -->
+    <string name="sin_publicaciones">No tienes publicaciones</string>
+    <string name="eliminar_publicacion">Eliminar publicación</string>
+    <string name="desactivar_publicacion">Desactivar publicación</string>
+    <string name="confirmar_desactivar">¿Estás seguro de que quieres desactivar esta publicación?</string>
+    <string name="estado_activo">Estado: Activo</string>
+    <string name="estado_inactivo">Estado: Inactivo</string>
+    <string name="stock_count">Stock: %1$d</string>
+    <string name="editar">Editar</string>
+    <string name="ver_detalle">Ver detalle</string>
+    <string name="ir_a_tienda">Ir a la tienda</string>
+    <string name="sin_review">Sin reseñas</string>
+
+    <!-- Pedidos -->
+    <string name="ordenes_titulo">Mis pedidos</string>
+    <string name="pedido_num">Pedido #</string>
+    <string name="estado_pendiente">Pendiente</string>
+    <string name="estado_finalizado">Finalizado</string>
+    <string name="estado_cancelado">Cancelado</string>
+    <string name="cancelar_pedido">Cancelar pedido</string>
+    <string name="marcar_recibido">Marcar como recibido</string>
+    <string name="calificar_producto">Calificar producto</string>
+    <string name="calificado">Calificado</string>
+
+    <!-- Selector de Idiomas -->
+    <string name="seleccionar_idioma">Seleccionar idioma</string>
+    <string name="idioma_es">Español</string>
+    <string name="idioma_en">English</string>
+    <string name="idioma_fr">Français</string>
+    <string name="idioma_pt">Português</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="aceptar">Aceptar</string>
+
+    <string name="regresar">Regresar</string>
+    <string name="previsualizacion_producto">Previsualización de producto</string>
+    <string name="tocar_para_imagen">Tocar para imagen</string>
+</resources>

@@ -1,0 +1,117 @@
+<resources>
+    <string name="app_name">UrianShopping</string>
+
+    <!-- Authentification -->
+    <string name="inicia_sesion">Se connecter</string>
+    <string name="crear_cuenta">Créer un compte</string>
+    <string name="email">Adresse e-mail</string>
+    <string name="password">Mot de passe</string>
+    <string name="confirmar_password">Confirmer le mot de passe</string>
+    <string name="nombre_completo">Nom complet</string>
+    <string name="calle">Rue</string>
+    <string name="numero_exterior">Numéro extérieur</string>
+    <string name="colonia">Quartier</string>
+    <string name="codigo_postal">Code postal</string>
+    <string name="sin_cuenta">Vous n\'avez pas de compte? S\'inscrire</string>
+    <string name="ya_tienes_cuenta">Vous avez déjà un compte? Connexion</string>
+    <string name="completa_datos">Remplissez vos coordonnées pour vous inscrire</string>
+    <string name="enter_email">Entrez votre adresse e-mail</string>
+    <string name="enter_password">Entrez votre mot de passe</string>
+
+    <!-- Navigation & Menu -->
+    <string name="vender">Commencer à vendre</string>
+    <string name="mis_publicaciones">Mes publications</string>
+    <string name="mis_pedidos">Mes commandes</string>
+    <string name="ajustes">Paramètres</string>
+    <string name="cerrar_sesion">Se déconnecter</string>
+    <string name="buscar_producto">Rechercher un produit...</string>
+    <string name="todas_categorias">Toutes les catégories</string>
+    <string name="carrito">Panier</string>
+    <string name="sin_productos">Aucun produit disponible</string>
+    <string name="sin_productos_filtros">Aucun produit trouvé avec ces filtres</string>
+
+    <!-- Filtres de Prix -->
+    <string name="filtro_todos">Tous</string>
+    <string name="filtro_mejor_calificados">Mieux notés</string>
+    <string name="filtro_menor_precio">Prix croissant</string>
+    <string name="filtro_mayor_precio">Prix décroissant</string>
+    <string name="filtro_menos_500">Moins de 500 $</string>
+
+    <!-- Panier & Paiement -->
+    <string name="carrito_compras">Panier d\'achats</string>
+    <string name="vaciar_carrito">Vider le panier</string>
+    <string name="proceder_pago">Passer à la caisse</string>
+    <string name="carrito_vacio">Votre panier est vide</string>
+    <string name="checkout_titulo">Confirmer l\'achat</string>
+    <string name="resumen_pedido">Résumé de la commande</string>
+    <string name="direccion_envio">Adresse de livraison</string>
+    <string name="metodo_pago">Mode de paiement</string>
+    <string name="tarjeta_credito">Carte de crédit / débit</string>
+    <string name="efectivo">Paiement en espèces</string>
+    <string name="confirmar_compra">Confirmer et payer</string>
+    <string name="total">Total</string>
+    <string name="pedido_exitoso">Commande passée avec succès!</string>
+    <string name="ver_mis_pedidos">Voir mes commandes</string>
+    <string name="seguir_comprando">Continuer les achats</string>
+
+    <!-- Produits & Détail -->
+    <string name="crear_producto">Créer un produit</string>
+    <string name="editar_producto">Modifier le produit</string>
+    <string name="nombre_producto">Nom du produit</string>
+    <string name="descripcion">Description</string>
+    <string name="precio">Prix ($)</string>
+    <string name="categoria">Catégorie</string>
+    <string name="stock">Stock / Unités disponibles</string>
+    <string name="subir_imagen">Télécharger l\'image</string>
+    <string name="guardar">Enregistrer</string>
+    <string name="desactivar">Désactiver</string>
+    <string name="activar">Activer</string>
+    <string name="eliminar">Supprimer</string>
+    <string name="confirmar_eliminar">Êtes-vous sûr de vouloir supprimer cette publication?</string>
+    <string name="disponible">Disponible</string>
+    <string name="disponibles_count">Disponibles: %1$d</string>
+    <string name="agotado">Rupture de stock</string>
+    <string name="envio_gratis">Livraison gratuite</string>
+    <string name="agregar_al_carrito">Ajouter au panier</string>
+    <string name="resenas">Avis</string>
+    <string name="detalle_producto">Détails du produit</string>
+    <string name="sin_stock">Rupture de stock</string>
+    <string name="producto_no_encontrado">Produit non trouvé</string>
+
+    <!-- Mes Publications -->
+    <string name="sin_publicaciones">Vous n\'avez aucune publication</string>
+    <string name="eliminar_publicacion">Supprimer la publication</string>
+    <string name="desactivar_publicacion">Désactiver la publication</string>
+    <string name="confirmar_desactivar">Êtes-vous sûr de vouloir désactiver cette publication?</string>
+    <string name="estado_activo">Statut: Actif</string>
+    <string name="estado_inactivo">Statut: Inactif</string>
+    <string name="stock_count">Stock: %1$d</string>
+    <string name="editar">Modifier</string>
+    <string name="ver_detalle">Voir les détails</string>
+    <string name="ir_a_tienda">Aller au magasin</string>
+    <string name="sin_review">Aucun avis</string>
+
+    <!-- Commandes -->
+    <string name="ordenes_titulo">Mes commandes</string>
+    <string name="pedido_num">Commande n°</string>
+    <string name="estado_pendiente">En attente</string>
+    <string name="estado_finalizado">Terminée</string>
+    <string name="estado_cancelado">Annulée</string>
+    <string name="cancelar_pedido">Annuler la commande</string>
+    <string name="marcar_recibido">Marquer comme reçu</string>
+    <string name="calificar_producto">Évaluer le produit</string>
+    <string name="calificado">Évalué</string>
+
+    <!-- Selecteur de langue -->
+    <string name="seleccionar_idioma">Choisir la langue</string>
+    <string name="idioma_es">Español</string>
+    <string name="idioma_en">English</string>
+    <string name="idioma_fr">Français</string>
+    <string name="idioma_pt">Português</string>
+    <string name="cancelar">Annuler</string>
+    <string name="aceptar">Accepter</string>
+
+    <string name="regresar">Retour</string>
+    <string name="previsualizacion_producto">Aperçu du produit</string>
+    <string name="tocar_para_imagen">Appuyez pour choisir une image</string>
+</resources>

@@ -1,10 +1,8 @@
 package com.example.proyectofinal.ui.auth
 
-import androidx.browser.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectofinal.R
 import com.example.proyectofinal.ui.AppViewModelProvider
 import kotlinx.coroutines.launch
 
@@ -49,6 +48,9 @@ fun LoginScreen(
 
     var usuarioOcorreo by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val strEnterEmail = stringResource(R.string.enter_email)
+    val strEnterPassword = stringResource(R.string.enter_password)
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let { error ->
@@ -79,11 +81,11 @@ fun LoginScreen(
 
             Image(
                 modifier = Modifier.size(128.dp).padding(8.dp),
-                painter = painterResource(com.example.proyectofinal.R.drawable.tiend_logo),
+                painter = painterResource(R.drawable.tiend_logo),
                 contentDescription = null
             )
             Text(
-                text = stringResource(com.example.proyectofinal.R.string.app_name),
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -91,7 +93,7 @@ fun LoginScreen(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Inicia sesión",
+                text = stringResource(R.string.inicia_sesion),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -101,7 +103,7 @@ fun LoginScreen(
             AuthTextField(
                 value = usuarioOcorreo,
                 onValueChange = { usuarioOcorreo = it },
-                label = "Correo electrónico"
+                label = stringResource(R.string.email)
             )
 
             Spacer(Modifier.height(16.dp))
@@ -109,7 +111,7 @@ fun LoginScreen(
             AuthTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = "Contraseña",
+                label = stringResource(R.string.password),
                 isPassword = true
             )
 
@@ -117,7 +119,11 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    val mensajeError = mensajeErrorLogin(usuarioOcorreo, password)
+                    val mensajeError = when {
+                        usuarioOcorreo.isBlank() -> strEnterEmail
+                        password.isBlank() -> strEnterPassword
+                        else -> null
+                    }
                     if (mensajeError != null) {
                         scope.launch {
                             snackbarHostState.showSnackbar(
@@ -138,21 +144,15 @@ fun LoginScreen(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Iniciar sesión")
+                    Text(stringResource(R.string.inicia_sesion))
                 }
             }
 
             Spacer(Modifier.height(8.dp))
 
             TextButton(onClick = onNavigateToRegister) {
-                Text("¿No tienes cuenta? Regístrate")
+                Text(stringResource(R.string.sin_cuenta))
             }
         }
     }
-}
-
-private fun mensajeErrorLogin(usuarioOcorreo: String, password: String): String? = when {
-    usuarioOcorreo.isBlank() -> "Ingresa tu correo electrónico"
-    password.isBlank() -> "Ingresa tu contraseña"
-    else -> null
 }

@@ -6,12 +6,33 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,10 +67,10 @@ fun CreateProductScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Publicar producto") },
+                title = { Text(stringResource(R.string.crear_producto)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Regresar")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
                     }
                 }
             )
@@ -60,6 +81,7 @@ fun CreateProductScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -78,12 +100,12 @@ fun CreateProductScreen(
                 if (imageUri != null) {
                     AsyncImage(
                         model = imageUri,
-                        contentDescription = "Previsualización de producto",
+                        contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    Text("Tocar para imagen", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.subir_imagen), style = MaterialTheme.typography.bodySmall)
                 }
             }
 
@@ -92,7 +114,7 @@ fun CreateProductScreen(
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
-                label = { Text("Nombre del producto") },
+                label = { Text(stringResource(R.string.nombre_producto)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -101,10 +123,8 @@ fun CreateProductScreen(
             OutlinedTextField(
                 value = descripcion,
                 onValueChange = { descripcion = it },
-                label = { Text("Descripción") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                maxLines = 5
+                label = { Text(stringResource(R.string.descripcion)) },
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -112,7 +132,7 @@ fun CreateProductScreen(
             OutlinedTextField(
                 value = precio,
                 onValueChange = { precio = it },
-                label = { Text("Precio") },
+                label = { Text(stringResource(R.string.precio)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -121,7 +141,7 @@ fun CreateProductScreen(
             OutlinedTextField(
                 value = categoria,
                 onValueChange = { categoria = it },
-                label = { Text("Categoría") },
+                label = { Text(stringResource(R.string.categoria)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -130,7 +150,7 @@ fun CreateProductScreen(
             OutlinedTextField(
                 value = stock,
                 onValueChange = { stock = it },
-                label = { Text("Stock") },
+                label = { Text(stringResource(R.string.stock)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -138,22 +158,14 @@ fun CreateProductScreen(
 
             Button(
                 onClick = {
-                    val precioDouble = precio.toDoubleOrNull() ?: 0.0
-                    val stockInt = stock.toIntOrNull() ?: 0
-                    viewModel.crearProducto(
-                        nombre = nombre,
-                        descripcion = descripcion,
-                        precio = precioDouble,
-                        categoria = categoria,
-                        stock = stockInt,
-                        imagen = imageUri
-                    )
+                    val p = precio.toDoubleOrNull() ?: 0.0
+                    val s = stock.toIntOrNull() ?: 0
+                    viewModel.crearProducto(nombre, descripcion, p, categoria, s, imageUri)
                     onNavigateBack()
                 },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = imageUri != null && nombre.isNotBlank()
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Publicar")
+                Text(stringResource(R.string.guardar))
             }
         }
     }

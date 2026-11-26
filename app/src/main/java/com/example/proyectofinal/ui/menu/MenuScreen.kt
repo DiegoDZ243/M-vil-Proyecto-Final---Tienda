@@ -1,9 +1,18 @@
 package com.example.proyectofinal.ui.menu
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -14,13 +23,29 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,16 +65,13 @@ import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
 import com.example.proyectofinal.ui.components.RatingBar
 
-
-enum class PrecioFiltro(val label: String) {
-    TODOS("Todos"),
-    MEJOR_CALIFICACION("Mejor calificados"),
-    MENOR_PRECIO("Menor precio"),
-    MAYOR_PRECIO("Mayor precio"),
-    MENOS_DE_500("Menos de $500")
+enum class PrecioFiltro(val labelRes: Int) {
+    TODOS(R.string.filtro_todos),
+    MEJOR_CALIFICACION(R.string.filtro_mejor_calificados),
+    MENOR_PRECIO(R.string.filtro_menor_precio),
+    MAYOR_PRECIO(R.string.filtro_mayor_precio),
+    MENOS_DE_500(R.string.filtro_menos_500)
 }
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,13 +81,11 @@ fun MenuScreen(
     onOpenMenu: () -> Unit,
     onProductClick: (Int) -> Unit
 ) {
-
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedPriceFilter by rememberSaveable { mutableStateOf(PrecioFiltro.TODOS) }
 
-    //Filtro
     val filteredProducts = remember(uiState.productos, searchQuery, selectedPriceFilter) {
         val baseList = uiState.productos.filter { producto ->
             val matchesSearch = producto.activo &&
@@ -86,14 +106,12 @@ fun MenuScreen(
     }
 
     val listState = rememberLazyListState()
-    // Esto permite que al hacer busquedas o filtrar, se deslice automaticamente al primer Item
     LaunchedEffect(selectedPriceFilter, searchQuery) {
         if (filteredProducts.isNotEmpty()) {
             listState.animateScrollToItem(0)
         }
     }
 
-    // RF-11: confirmación al agregar al carrito
     LaunchedEffect(uiState.mensaje) {
         uiState.mensaje?.let { mensaje ->
             snackbarHostState.showSnackbar(message = mensaje, duration = SnackbarDuration.Short)
@@ -158,16 +176,16 @@ fun MenuScreen(
                     ) {
                         Text(
                             text = if (searchQuery.isBlank() && selectedPriceFilter == PrecioFiltro.TODOS)
-                                "No hay productos disponibles"
+                                stringResource(R.string.sin_productos)
                             else
-                                "No se encontraron productos con estos filtros",
+                                stringResource(R.string.sin_productos_filtros),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
                     LazyColumn(
-                        state=listState,
+                        state = listState,
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(
@@ -199,7 +217,7 @@ fun MenuScreenTopAppBar(
     CenterAlignedTopAppBar(
         navigationIcon = {
             IconButton(onClick = onMenuClick) {
-                Icon(imageVector = Icons.Default.Menu, contentDescription = "Abrir menú")
+                Icon(imageVector = Icons.Default.Menu, contentDescription = null)
             }
         },
         title = {
@@ -225,7 +243,7 @@ fun MenuScreenTopAppBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = "Carrito"
+                        contentDescription = stringResource(R.string.carrito)
                     )
                 }
             }
@@ -294,7 +312,6 @@ fun ProductItem(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // RF-19: calificación de 1 a 5 (solo si tiene al menos 1 reseña)
             if (product.numReviews > 0) {
                 RatingBar(
                     calificacion = product.calificacion,
@@ -304,7 +321,7 @@ fun ProductItem(
             }
 
             Text(
-                text = if (product.stock > 0) "Disponibles: ${product.stock}" else "Agotado",
+                text = if (product.stock > 0) stringResource(R.string.disponibles_count, product.stock) else stringResource(R.string.agotado),
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (product.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 4.dp)
@@ -318,7 +335,7 @@ fun ProductItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Envío gratis",
+                    text = stringResource(R.string.envio_gratis),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFF2E7D32)
                 )
@@ -328,7 +345,7 @@ fun ProductItem(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     shape = MaterialTheme.shapes.small
                 ) {
-                    Text("Añadir", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.agregar_al_carrito), style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
@@ -339,22 +356,22 @@ fun ProductItem(
 fun SearchBarField(
     query: String,
     onQueryChange: (String) -> Unit,
-    maxLength: Int=35,
+    maxLength: Int = 35,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         value = query,
-        onValueChange = {nuevoTexto->
-            if(nuevoTexto.length<=maxLength){
+        onValueChange = { nuevoTexto ->
+            if (nuevoTexto.length <= maxLength) {
                 onQueryChange(nuevoTexto)
             }
         },
         modifier = modifier,
-        placeholder = { Text("Buscar producto...") },
+        placeholder = { Text(stringResource(R.string.buscar_producto)) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Buscar"
+                contentDescription = null
             )
         },
         trailingIcon = {
@@ -362,7 +379,7 @@ fun SearchBarField(
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "Limpiar búsqueda"
+                        contentDescription = null
                     )
                 }
             }
@@ -390,7 +407,7 @@ fun PriceFilterRow(
                 onClick = {
                     onFilterSelected(if (isSelected) PrecioFiltro.TODOS else filtro)
                 },
-                label = { Text(filtro.label) },
+                label = { Text(stringResource(filtro.labelRes)) },
                 leadingIcon = if (isSelected) {
                     {
                         Icon(

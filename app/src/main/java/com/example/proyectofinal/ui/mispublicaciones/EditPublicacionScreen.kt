@@ -16,10 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.proyectofinal.R
 import com.example.proyectofinal.ui.AppViewModelProvider
 import com.example.proyectofinal.ui.mispublicaciones.PublicacionesViewModel
 
@@ -78,7 +80,7 @@ fun EditProductScreen(
                 ) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(16.dp))
-                    Text(text = "Actualizando publicación...")
+                    Text(text = stringResource(R.string.actualizando_publicacion))
                 }
             }
         }
@@ -87,10 +89,13 @@ fun EditProductScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Editar producto") },
+                title = { Text(stringResource(R.string.editar_producto)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Regresar")
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.regresar)
+                        )
                     }
                 }
             )
@@ -116,18 +121,20 @@ fun EditProductScreen(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                //Decidimos qué imagen mostrar: la nueva Uri, o la URL del servidor si no ha seleccionado ninguna
                 val imagenAMostrar = nuevaImagenUri ?: imagenUrlServidor
 
                 if (imagenAMostrar.toString().isNotBlank()) {
                     AsyncImage(
                         model = imagenAMostrar,
-                        contentDescription = "Previsualización de producto",
+                        contentDescription = stringResource(R.string.previsualizacion_producto),
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    Text("Tocar para imagen", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = stringResource(R.string.tocar_para_imagen),
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
 
@@ -136,7 +143,7 @@ fun EditProductScreen(
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
-                label = { Text("Nombre del producto") },
+                label = { Text(stringResource(R.string.nombre_producto)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -145,7 +152,7 @@ fun EditProductScreen(
             OutlinedTextField(
                 value = descripcion,
                 onValueChange = { descripcion = it },
-                label = { Text("Descripción") },
+                label = { Text(stringResource(R.string.descripcion)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
                 maxLines = 5
@@ -156,7 +163,7 @@ fun EditProductScreen(
             OutlinedTextField(
                 value = precio,
                 onValueChange = { precio = it },
-                label = { Text("Precio") },
+                label = { Text(stringResource(R.string.precio)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -165,7 +172,7 @@ fun EditProductScreen(
             OutlinedTextField(
                 value = categoria,
                 onValueChange = { categoria = it },
-                label = { Text("Categoría") },
+                label = { Text(stringResource(R.string.categoria)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -174,7 +181,7 @@ fun EditProductScreen(
             OutlinedTextField(
                 value = stock,
                 onValueChange = { stock = it },
-                label = { Text("Stock") },
+                label = { Text(stringResource(R.string.stock)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -186,8 +193,6 @@ fun EditProductScreen(
                     val stockInt = stock.toIntOrNull() ?: 0
 
                     isUpdating = true
-                    // Le pasamos el producto original, los textos actuales de la UI
-                    // y la Uri de la NUEVA imagen (que será null si no tocó la foto)
                     viewModelPublicacion.editarPublicacion(
                         productoActual = productoAEditar,
                         nuevoNombre = nombre,
@@ -196,8 +201,8 @@ fun EditProductScreen(
                         nuevaCategoria = categoria,
                         nuevoStock = stockInt,
                         nuevaImagenUri = nuevaImagenUri,
-                        onComplete={
-                            isUpdating=false
+                        onComplete = {
+                            isUpdating = false
                             onNavigateBack()
                         }
                     )
@@ -205,7 +210,7 @@ fun EditProductScreen(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = nombre.isNotBlank()
             ) {
-                Text("Actualizar")
+                Text(stringResource(R.string.actualizar))
             }
         }
     }

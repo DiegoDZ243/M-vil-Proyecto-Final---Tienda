@@ -1,21 +1,53 @@
 package com.example.proyectofinal.ui.pedidos
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.EstadoPedido
 import com.example.proyectofinal.data.model.Pedido
 import com.example.proyectofinal.data.model.ProductoCarrito
-import com.example.proyectofinal.data.model.estaDentroDeVentanaCancelacion
 import com.example.proyectofinal.data.model.puedeCancelarse
 import com.example.proyectofinal.ui.AppViewModelProvider
 import com.example.proyectofinal.ui.components.RatingBar
@@ -45,28 +77,26 @@ fun OrdersScreen(
         }
     }
 
-    // RF-14: confirmación antes de cancelar
     pedidoACancelar?.let { pedido ->
         AlertDialog(
             onDismissRequest = { pedidoACancelar = null },
-            title = { Text("Cancelar pedido #${pedido.id}") },
-            text = { Text("¿Seguro que quieres cancelar este pedido? Esta acción no se puede deshacer.") },
+            title = { Text("${stringResource(R.string.cancelar_pedido)} #${pedido.id}") },
+            text = { Text(stringResource(R.string.confirmar_eliminar)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.cancelarPedido(pedido)
                     pedidoACancelar = null
-                }) { Text("Cancelar pedido", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.cancelar_pedido), color = MaterialTheme.colorScheme.error) }
             },
-            dismissButton = { TextButton(onClick = { pedidoACancelar = null }) { Text("Volver") } }
+            dismissButton = { TextButton(onClick = { pedidoACancelar = null }) { Text(stringResource(R.string.cancelar)) } }
         )
     }
 
-    // RF-20: diálogo para calificar un producto
     calificando?.let { (pedido, item) ->
         var estrellas by remember { mutableIntStateOf(0) }
         AlertDialog(
             onDismissRequest = { calificando = null },
-            title = { Text("Calificar producto") },
+            title = { Text(stringResource(R.string.calificar_producto)) },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                     Text(item.producto.nombre, style = MaterialTheme.typography.titleMedium)
@@ -81,19 +111,19 @@ fun OrdersScreen(
                         viewModel.calificarProducto(pedido, item.producto.id, estrellas)
                         calificando = null
                     }
-                ) { Text("Enviar") }
+                ) { Text(stringResource(R.string.aceptar)) }
             },
-            dismissButton = { TextButton(onClick = { calificando = null }) { Text("Cancelar") } }
+            dismissButton = { TextButton(onClick = { calificando = null }) { Text(stringResource(R.string.cancelar)) } }
         )
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Mis pedidos") },
+                title = { Text(stringResource(R.string.ordenes_titulo)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Regresar")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
                     }
                 }
             )
@@ -111,8 +141,8 @@ fun OrdersScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "No tienes pedidos", style = MaterialTheme.typography.titleLarge)
-                    TextButton(onClick = onNavigateBack) { Text("Ir a la tienda") }
+                    Text(text = stringResource(R.string.ordenes_titulo), style = MaterialTheme.typography.titleLarge)
+                    TextButton(onClick = onNavigateBack) { Text(stringResource(R.string.seguir_comprando)) }
                 }
             }
         } else {
@@ -148,6 +178,13 @@ fun OrderItem(
         else -> MaterialTheme.colorScheme.primary
     }
 
+    val estadoTexto = when (pedido.estado) {
+        EstadoPedido.PENDIENTE -> stringResource(R.string.estado_pendiente)
+        EstadoPedido.FINALIZADO -> stringResource(R.string.estado_finalizado)
+        EstadoPedido.CANCELADO -> stringResource(R.string.estado_cancelado)
+        else -> pedido.estado
+    }
+
     Card(
         modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
@@ -157,12 +194,12 @@ fun OrderItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Pedido #${pedido.id}",
+                    text = "${stringResource(R.string.pedido_num)}${pedido.id}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = pedido.estado,
+                    text = estadoTexto,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = colorEstado
@@ -172,14 +209,14 @@ fun OrderItem(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Fecha: ${dateFormat.format(Date(pedido.fecha))}",
+                text = dateFormat.format(Date(pedido.fecha)),
                 style = MaterialTheme.typography.bodyMedium
             )
             if (pedido.direccion.isNotBlank()) {
-                Text("Envío a: ${pedido.direccion}", style = MaterialTheme.typography.bodyMedium)
+                Text(pedido.direccion, style = MaterialTheme.typography.bodyMedium)
             }
             if (pedido.metodoPago.isNotBlank()) {
-                Text("Pago: ${pedido.metodoPago}", style = MaterialTheme.typography.bodyMedium)
+                Text(pedido.metodoPago, style = MaterialTheme.typography.bodyMedium)
             }
 
             Spacer(Modifier.height(8.dp))
@@ -201,46 +238,58 @@ fun OrderItem(
                                 calificacion = item.calificacion.toDouble(),
                                 numReviews = 1,
                                 starSize = 16.dp,
-                                mostrarTexto = false
+                                mostrarTexto = false,
+                                modifier = Modifier.padding(top = 2.dp)
                             )
                         }
                     }
-                    // RF-20: solo se puede calificar tras finalizar la compra
-                    if (pedido.estado == EstadoPedido.FINALIZADO && item.calificacion == 0) {
-                        OutlinedButton(onClick = { onCalificar(item) }) { Text("Calificar") }
+                    if (pedido.estado == EstadoPedido.FINALIZADO) {
+                        if (item.calificacion == 0) {
+                            TextButton(onClick = { onCalificar(item) }) {
+                                Text(stringResource(R.string.calificar_producto))
+                            }
+                        } else {
+                            Text(
+                                stringResource(R.string.calificado),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
                     }
                 }
             }
 
             Spacer(Modifier.height(8.dp))
+            HorizontalDivider()
+            Spacer(Modifier.height(8.dp))
 
-            Text(
-                text = "Total: $%.2f".format(pedido.total),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${stringResource(R.string.total)}: $%.2f".format(pedido.total),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
 
-            if (pedido.estado == EstadoPedido.PENDIENTE) {
-                Spacer(Modifier.height(12.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // RF-14 / RF-15: cancelar solo dentro de las primeras 6 horas
-                    OutlinedButton(
-                        onClick = onCancelar,
-                        enabled = pedido.puedeCancelarse(),
-                        modifier = Modifier.weight(1f)
-                    ) { Text("Cancelar") }
-                    Button(onClick = onFinalizar, modifier = Modifier.weight(1f)) {
-                        Text("Confirmar recepción")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (pedido.puedeCancelarse()) {
+                        OutlinedButton(
+                            onClick = onCancelar,
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text(stringResource(R.string.cancelar_pedido))
+                        }
                     }
-                }
-                if (!pedido.estaDentroDeVentanaCancelacion()) {
-                    Text(
-                        text = "No se puede cancelar: pasaron más de 6 horas desde que se realizó el pedido.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                    if (pedido.estado == EstadoPedido.PENDIENTE) {
+                        OutlinedButton(onClick = onFinalizar) {
+                            Text(stringResource(R.string.marcar_recibido))
+                        }
+                    }
                 }
             }
         }

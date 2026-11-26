@@ -1,6 +1,16 @@
 package com.example.proyectofinal.ui.carrito
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -8,22 +18,42 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.MetodoPago
 import com.example.proyectofinal.ui.TiendaViewModel
 
-/**
- * RF-10: pantalla de checkout (dirección, método de pago y resumen).
- * RF-12: al terminar la compra se muestra un diálogo de confirmación.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckoutScreen(
@@ -50,7 +80,6 @@ fun CheckoutScreen(
         }
     }
 
-    // RF-12: mensaje de confirmación de compra exitosa
     pedidoConfirmadoId?.let { pedidoId ->
         AlertDialog(
             onDismissRequest = { },
@@ -61,20 +90,20 @@ fun CheckoutScreen(
                     tint = MaterialTheme.colorScheme.primary
                 )
             },
-            title = { Text("¡Compra realizada!") },
-            text = { Text("Tu pedido #$pedidoId se registró correctamente. Puedes darle seguimiento en \"Mis pedidos\".") },
-            confirmButton = { TextButton(onClick = onVerPedidos) { Text("Ver mis pedidos") } },
-            dismissButton = { TextButton(onClick = onSeguirComprando) { Text("Seguir comprando") } }
+            title = { Text(stringResource(R.string.pedido_exitoso)) },
+            text = { Text("#$pedidoId") },
+            confirmButton = { TextButton(onClick = onVerPedidos) { Text(stringResource(R.string.ver_mis_pedidos)) } },
+            dismissButton = { TextButton(onClick = onSeguirComprando) { Text(stringResource(R.string.seguir_comprando)) } }
         )
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Finalizar compra") },
+                title = { Text(stringResource(R.string.checkout_titulo)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack, enabled = pedidoConfirmadoId == null) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Regresar")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
                     }
                 }
             )
@@ -89,8 +118,8 @@ fun CheckoutScreen(
             ) {
                 if (pedidoConfirmadoId == null) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Tu carrito está vacío", style = MaterialTheme.typography.titleLarge)
-                        TextButton(onClick = onSeguirComprando) { Text("Volver a la tienda") }
+                        Text(stringResource(R.string.carrito_vacio), style = MaterialTheme.typography.titleLarge)
+                        TextButton(onClick = onSeguirComprando) { Text(stringResource(R.string.seguir_comprando)) }
                     }
                 }
             }
@@ -104,13 +133,12 @@ fun CheckoutScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // --- Dirección de envío ---
-            Text("Dirección de envío", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.direccion_envio), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = direccion,
                 onValueChange = { if (it.length <= 150) direccion = it },
-                label = { Text("Calle, número, colonia, ciudad y C.P.") },
+                label = { Text(stringResource(R.string.direccion_envio)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2,
                 maxLines = 4
@@ -118,8 +146,7 @@ fun CheckoutScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // --- Método de pago ---
-            Text("Método de pago", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.metodo_pago), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(4.dp))
             Column(Modifier.selectableGroup()) {
                 MetodoPago.opciones.forEach { opcion ->
@@ -143,8 +170,7 @@ fun CheckoutScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // --- Resumen del pedido ---
-            Text("Resumen del pedido", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.resumen_pedido), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
@@ -169,15 +195,7 @@ fun CheckoutScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Envío", style = MaterialTheme.typography.bodyMedium)
-                        Text("Gratis", style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Total", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.total), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Text(
                             text = "$%.2f".format(total),
                             style = MaterialTheme.typography.titleLarge,
@@ -204,7 +222,7 @@ fun CheckoutScreen(
                 if (procesando) {
                     CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                 } else {
-                    Text("Confirmar pedido")
+                    Text(stringResource(R.string.confirmar_compra))
                 }
             }
         }

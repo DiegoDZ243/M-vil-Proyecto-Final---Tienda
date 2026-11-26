@@ -27,9 +27,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectofinal.R
 import com.example.proyectofinal.ui.AppViewModelProvider
 import kotlinx.coroutines.launch
 
@@ -80,7 +82,7 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Crear cuenta",
+                text = stringResource(R.string.crear_cuenta),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -88,7 +90,7 @@ fun RegisterScreen(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Completa tus datos para registrarte",
+                text = stringResource(R.string.completa_datos),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -98,7 +100,7 @@ fun RegisterScreen(
             AuthTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
-                label = "Nombre completo"
+                label = stringResource(R.string.nombre_completo)
             )
 
             Spacer(Modifier.height(12.dp))
@@ -106,7 +108,7 @@ fun RegisterScreen(
             AuthTextField(
                 value = correo,
                 onValueChange = { correo = it },
-                label = "Correo electrónico",
+                label = stringResource(R.string.email),
                 keyboardType = KeyboardType.Email
             )
 
@@ -115,7 +117,7 @@ fun RegisterScreen(
             AuthTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = "Contraseña",
+                label = stringResource(R.string.password),
                 isPassword = true
             )
 
@@ -124,7 +126,7 @@ fun RegisterScreen(
             AuthTextField(
                 value = confirmarPassword,
                 onValueChange = { confirmarPassword = it },
-                label = "Confirmar contraseña",
+                label = stringResource(R.string.confirmar_password),
                 isPassword = true
             )
 
@@ -133,7 +135,7 @@ fun RegisterScreen(
             AuthTextField(
                 value = calle,
                 onValueChange = { calle = it },
-                label = "Calle"
+                label = stringResource(R.string.calle)
             )
 
             Spacer(Modifier.height(12.dp))
@@ -141,7 +143,7 @@ fun RegisterScreen(
             AuthTextField(
                 value = numero,
                 onValueChange = { numero = it },
-                label = "Número exterior",
+                label = stringResource(R.string.numero_exterior),
                 keyboardType = KeyboardType.Number
             )
 
@@ -150,7 +152,7 @@ fun RegisterScreen(
             AuthTextField(
                 value = colonia,
                 onValueChange = { colonia = it },
-                label = "Colonia"
+                label = stringResource(R.string.colonia)
             )
 
             Spacer(Modifier.height(12.dp))
@@ -158,7 +160,7 @@ fun RegisterScreen(
             AuthTextField(
                 value = codigoPostal,
                 onValueChange = { codigoPostal = it },
-                label = "Código postal",
+                label = stringResource(R.string.codigo_postal),
                 keyboardType = KeyboardType.Number,
                 maxLength = 5
             )
@@ -203,14 +205,14 @@ fun RegisterScreen(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Crear cuenta")
+                    Text(stringResource(R.string.crear_cuenta))
                 }
             }
 
             Spacer(Modifier.height(8.dp))
 
             TextButton(onClick = onNavigateToLogin) {
-                Text("¿Ya tienes cuenta? Inicia sesión")
+                Text(stringResource(R.string.ya_tienes_cuenta))
             }
         }
     }

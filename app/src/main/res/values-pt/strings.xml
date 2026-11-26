@@ -1,0 +1,117 @@
+<resources>
+    <string name="app_name">UrianShopping</string>
+
+    <!-- Autenticação -->
+    <string name="inicia_sesion">Entrar</string>
+    <string name="crear_cuenta">Criar conta</string>
+    <string name="email">Endereço de e-mail</string>
+    <string name="password">Senha</string>
+    <string name="confirmar_password">Confirmar senha</string>
+    <string name="nombre_completo">Nome completo</string>
+    <string name="calle">Rua</string>
+    <string name="numero_exterior">Número exterior</string>
+    <string name="colonia">Bairro</string>
+    <string name="codigo_postal">Código postal</string>
+    <string name="sin_cuenta">Não tem uma conta? Cadastre-se</string>
+    <string name="ya_tienes_cuenta">Já tem uma conta? Entrar</string>
+    <string name="completa_datos">Preencha seus dados para se cadastrar</string>
+    <string name="enter_email">Digite seu endereço de e-mail</string>
+    <string name="enter_password">Digite sua senha</string>
+
+    <!-- Navegação & Menu -->
+    <string name="vender">Começar a vender</string>
+    <string name="mis_publicaciones">Minhas publicações</string>
+    <string name="mis_pedidos">Meus pedidos</string>
+    <string name="ajustes">Configurações</string>
+    <string name="cerrar_sesion">Sair</string>
+    <string name="buscar_producto">Pesquisar produto...</string>
+    <string name="todas_categorias">Todas as categorias</string>
+    <string name="carrito">Carrinho</string>
+    <string name="sin_productos">Nenhum produto disponível</string>
+    <string name="sin_productos_filtros">Nenhum produto encontrado com estes filtros</string>
+
+    <!-- Filtros de Preço -->
+    <string name="filtro_todos">Todos</string>
+    <string name="filtro_mejor_calificados">Melhor avaliados</string>
+    <string name="filtro_menor_precio">Menor preço</string>
+    <string name="filtro_mayor_precio">Maior preço</string>
+    <string name="filtro_menos_500">Menos de $500</string>
+
+    <!-- Carrinho & Pagamento -->
+    <string name="carrito_compras">Carrinho de compras</string>
+    <string name="vaciar_carrito">Esvaziar carrinho</string>
+    <string name="proceder_pago">Prosseguir para o pagamento</string>
+    <string name="carrito_vacio">Seu carrinho está vazio</string>
+    <string name="checkout_titulo">Confirmar compra</string>
+    <string name="resumen_pedido">Resumo do pedido</string>
+    <string name="direccion_envio">Endereço de entrega</string>
+    <string name="metodo_pago">Método de pagamento</string>
+    <string name="tarjeta_credito">Cartão de crédito / débito</string>
+    <string name="efectivo">Pagamento em dinheiro</string>
+    <string name="confirmar_compra">Confirmar e pagar</string>
+    <string name="total">Total</string>
+    <string name="pedido_exitoso">Pedido realizado com sucesso!</string>
+    <string name="ver_mis_pedidos">Ver meus pedidos</string>
+    <string name="seguir_comprando">Continuar comprando</string>
+
+    <!-- Produtos & Detalhes -->
+    <string name="crear_producto">Criar produto</string>
+    <string name="editar_producto">Editar produto</string>
+    <string name="nombre_producto">Nome do produto</string>
+    <string name="descripcion">Descrição</string>
+    <string name="precio">Preço ($)</string>
+    <string name="categoria">Categoria</string>
+    <string name="stock">Estoque / Unidades disponíveis</string>
+    <string name="subir_imagen">Enviar imagem</string>
+    <string name="guardar">Salvar</string>
+    <string name="desactivar">Desactivar</string>
+    <string name="activar">Ativar</string>
+    <string name="eliminar">Excluir</string>
+    <string name="confirmar_eliminar">Tem certeza que deseja excluir esta publicação?</string>
+    <string name="disponible">Disponível</string>
+    <string name="disponibles_count">Disponíveis: %1$d</string>
+    <string name="agotado">Esgotado</string>
+    <string name="envio_gratis">Frete grátis</string>
+    <string name="agregar_al_carrito">Adicionar ao carrinho</string>
+    <string name="resenas">Avaliações</string>
+    <string name="detalle_producto">Detalhes do produto</string>
+    <string name="sin_stock">Sem estoque</string>
+    <string name="producto_no_encontrado">Produto não encontrado</string>
+
+    <!-- Minhas Publicações -->
+    <string name="sin_publicaciones">Você não tem publicações</string>
+    <string name="eliminar_publicacion">Excluir publicação</string>
+    <string name="desactivar_publicacion">Desativar publicação</string>
+    <string name="confirmar_desactivar">Tem certeza que deseja desativar esta publicação?</string>
+    <string name="estado_activo">Status: Ativo</string>
+    <string name="estado_inactivo">Status: Inativo</string>
+    <string name="stock_count">Estoque: %1$d</string>
+    <string name="editar">Editar</string>
+    <string name="ver_detalle">Ver detalhes</string>
+    <string name="ir_a_tienda">Ir para a loja</string>
+    <string name="sin_review">Sem avaliações</string>
+
+    <!-- Pedidos -->
+    <string name="ordenes_titulo">Meus pedidos</string>
+    <string name="pedido_num">Pedido #</string>
+    <string name="estado_pendiente">Pendente</string>
+    <string name="estado_finalizado">Concluído</string>
+    <string name="estado_cancelado">Cancelado</string>
+    <string name="cancelar_pedido">Cancelar pedido</string>
+    <string name="marcar_recibido">Marcar como recebido</string>
+    <string name="calificar_producto">Avaliar produto</string>
+    <string name="calificado">Avaliado</string>
+
+    <!-- Seletor de Idioma -->
+    <string name="seleccionar_idioma">Selecionar idioma</string>
+    <string name="idioma_es">Español</string>
+    <string name="idioma_en">English</string>
+    <string name="idioma_fr">Français</string>
+    <string name="idioma_pt">Português</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="aceptar">OK</string>
+
+    <string name="regresar">Voltar</string>
+    <string name="previsualizacion_producto">Pré-visualização do produto</string>
+    <string name="tocar_para_imagen">Toque para selecionar imagem</string>
+</resources>
