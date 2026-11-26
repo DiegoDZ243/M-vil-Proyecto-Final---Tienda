@@ -87,13 +87,19 @@ fun ProductDetailScreen(
         modifier = modifier
     ) { innerPadding ->
         if (producto != null) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .padding(innerPadding),
+                contentAlignment = Alignment.TopCenter
             ) {
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
                 AsyncImage(
                     model = producto.imagen,
                     contentDescription = producto.nombre,
@@ -158,6 +164,7 @@ fun ProductDetailScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(if (producto.stock > 0) stringResource(R.string.agregar_al_carrito) else stringResource(R.string.sin_stock))
                 }
+            }
             }
         } else {
             Box(

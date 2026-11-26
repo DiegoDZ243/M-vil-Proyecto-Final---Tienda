@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -126,103 +127,126 @@ fun CheckoutScreen(
             return@Scaffold
         }
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Text(stringResource(R.string.direccion_envio), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = direccion,
-                onValueChange = { if (it.length <= 150) direccion = it },
-                label = { Text(stringResource(R.string.direccion_envio)) },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 2,
-                maxLines = 4
-            )
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 600.dp)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.direccion_envio),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = direccion,
+                    onValueChange = { if (it.length <= 150) direccion = it },
+                    label = { Text(stringResource(R.string.direccion_envio)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 4
+                )
 
-            Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(20.dp))
 
-            Text(stringResource(R.string.metodo_pago), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(4.dp))
-            Column(Modifier.selectableGroup()) {
-                MetodoPago.opciones.forEach { opcion ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = metodoPago == opcion,
-                                onClick = { metodoPago = opcion },
-                                role = Role.RadioButton
-                            )
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(selected = metodoPago == opcion, onClick = null)
-                        Spacer(Modifier.width(12.dp))
-                        Text(opcion, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = stringResource(R.string.metodo_pago),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(4.dp))
+                Column(Modifier.selectableGroup()) {
+                    MetodoPago.opciones.forEach { opcion ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = metodoPago == opcion,
+                                    onClick = { metodoPago = opcion },
+                                    role = Role.RadioButton
+                                )
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = metodoPago == opcion, onClick = null)
+                            Spacer(Modifier.width(12.dp))
+                            Text(opcion, style = MaterialTheme.typography.bodyLarge)
+                        }
                     }
                 }
-            }
 
-            Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(20.dp))
 
-            Text(stringResource(R.string.resumen_pedido), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(8.dp))
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp)) {
-                    cartItems.forEach { item ->
+                Text(
+                    text = stringResource(R.string.resumen_pedido),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(8.dp))
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp)) {
+                        cartItems.forEach { item ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "${item.cantidad} x ${item.producto.nombre}",
+                                    modifier = Modifier.weight(1f),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Text(
+                                    text = "$%.2f".format(item.producto.precio * item.cantidad),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                        HorizontalDivider(Modifier.padding(vertical = 8.dp))
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "${item.cantidad} x ${item.producto.nombre}",
-                                modifier = Modifier.weight(1f),
-                                style = MaterialTheme.typography.bodyMedium
+                                text = stringResource(R.string.total),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "$%.2f".format(item.producto.precio * item.cantidad),
-                                style = MaterialTheme.typography.bodyMedium
+                                text = "$%.2f".format(total),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
-                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(stringResource(R.string.total), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Text(
-                            text = "$%.2f".format(total),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
                 }
-            }
 
-            Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-                    procesando = true
-                    viewModel.crearPedido(direccion.trim(), metodoPago) { id ->
-                        procesando = false
-                        if (id != null) pedidoConfirmadoId = id
+                Button(
+                    onClick = {
+                        procesando = true
+                        viewModel.crearPedido(direccion.trim(), metodoPago) { id ->
+                            procesando = false
+                            if (id != null) pedidoConfirmadoId = id
+                        }
+                    },
+                    enabled = direccion.isNotBlank() && !procesando,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (procesando) {
+                        CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text(stringResource(R.string.confirmar_compra))
                     }
-                },
-                enabled = direccion.isNotBlank() && !procesando,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (procesando) {
-                    CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                } else {
-                    Text(stringResource(R.string.confirmar_compra))
                 }
             }
         }

@@ -3,10 +3,10 @@ package com.example.proyectofinal.ui.menu
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,8 +44,10 @@ fun BarraLateral(
         )
     }
 
-    ModalDrawerSheet(
-        modifier = Modifier.width(280.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
     ) {
         Column(
             modifier = Modifier
@@ -59,9 +60,7 @@ fun BarraLateral(
                 contentDescription = "Foto de perfil",
                 modifier = Modifier.size(90.dp)
             )
-            Spacer(
-                modifier = Modifier.size(12.dp)
-            )
+            Spacer(modifier = Modifier.size(12.dp))
             Text(
                 text = username,
                 style = MaterialTheme.typography.titleLarge
