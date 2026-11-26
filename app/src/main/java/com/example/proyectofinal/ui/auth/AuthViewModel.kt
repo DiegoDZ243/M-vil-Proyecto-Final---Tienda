@@ -3,14 +3,20 @@ package com.example.proyectofinal.ui.auth
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import com.example.proyectofinal.data.model.Usuario
+import com.example.proyectofinal.data.model.service.AccountService
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(
+    private val accountService: AccountService
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
@@ -24,23 +30,35 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                _uiState.update { it.copy(isLoading = true, error = null) }
-                Log.d("AuthViewModel", "Login intent: usuario=$usuarioOcorreo (auth pendiente)")
-
-                // Integrar FirebaseAuth en login()
-
+                _uiState.update { it.copy(isLoading = true, error = null, isSuccess = false) }
+                accountService.authenticate(usuarioOcorreo.trim(), password)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = "Auth no implementado todavía"
+                        isSuccess = true,
+                        error = null
+                    )
+                }
+            } catch (e: FirebaseAuthInvalidUserException) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "No existe ninguna cuenta registrada con este correo electrónico."
+                    )
+                }
+            } catch (e: FirebaseAuthInvalidCredentialsException) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Contraseña o correo electrónico incorrectos."
                     )
                 }
             } catch (e: Exception) {
-                Log.e("AuthViewModel", "Error inesperado en login: ${e.message}")
+                Log.e("AuthViewModel", "Error en login: ${e.message}", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = "Ocurrió un error inesperado. Intenta de nuevo."
+                        error = e.localizedMessage ?: "Ocurrió un error inesperado al iniciar sesión."
                     )
                 }
             }
@@ -72,29 +90,47 @@ class AuthViewModel : ViewModel() {
             return
         }
 
+        val nuevoUsuario = Usuario(
+            nombre = nombre.trim(),
+            correo = correo.trim(),
+            calle = calle.trim(),
+            numero = numero.trim(),
+            colonia = colonia.trim(),
+            codigoPostal = codigoPostal.trim()
+        )
+
         viewModelScope.launch {
             try {
-                _uiState.update { it.copy(isLoading = true, error = null) }
-                Log.d("AuthViewModel", "Register intent: correo=$correo")
-
-                // Integrar FirebaseAuth en register()
-
+                _uiState.update { it.copy(isLoading = true, error = null, isSuccess = false) }
+                accountService.signUp(nuevoUsuario, password)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = ""
+                        isSuccess = true,
+                        error = null
+                    )
+                }
+            } catch (e: FirebaseAuthUserCollisionException) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Este correo electrónico ya está registrado."
                     )
                 }
             } catch (e: Exception) {
-                Log.e("AuthViewModel", "Error inesperado en register: ${e.message}")
+                Log.e("AuthViewModel", "Error en registro: ${e.message}", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = "Ocurrió un error inesperado. Intenta de nuevo."
+                        error = e.localizedMessage ?: "Ocurrió un error inesperado al registrarte."
                     )
                 }
             }
         }
+    }
+
+    fun resetSuccess() {
+        _uiState.update { it.copy(isSuccess = false) }
     }
 
     fun limpiarError() {

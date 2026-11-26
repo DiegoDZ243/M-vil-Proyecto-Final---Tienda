@@ -1,7 +1,10 @@
 package com.example.proyectofinal.ui.auth
 
+import androidx.browser.R
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +29,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectofinal.ui.AppViewModelProvider
@@ -52,6 +57,13 @@ fun LoginScreen(
         }
     }
 
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            viewModel.resetSuccess()
+            onLoginSuccess()
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
@@ -64,8 +76,14 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
+            Image(
+                modifier = Modifier.size(128.dp).padding(8.dp),
+                painter = painterResource(com.example.proyectofinal.R.drawable.tiend_logo),
+                contentDescription = null
+            )
             Text(
-                text = "TiendaOnline",
+                text = stringResource(com.example.proyectofinal.R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -83,7 +101,7 @@ fun LoginScreen(
             AuthTextField(
                 value = usuarioOcorreo,
                 onValueChange = { usuarioOcorreo = it },
-                label = "Usuario o correo"
+                label = "Correo electrónico"
             )
 
             Spacer(Modifier.height(16.dp))
@@ -102,11 +120,13 @@ fun LoginScreen(
                     val mensajeError = mensajeErrorLogin(usuarioOcorreo, password)
                     if (mensajeError != null) {
                         scope.launch {
-                            snackbarHostState.showSnackbar(message = mensajeError, actionLabel = "OK")
+                            snackbarHostState.showSnackbar(
+                                message = mensajeError,
+                                actionLabel = "OK"
+                            )
                         }
                     } else {
                         viewModel.login(usuarioOcorreo.trim(), password)
-                        // AuthViewModel.login autentique, invoca onLoginSuccess()
                     }
                 },
                 enabled = !uiState.isLoading,
@@ -132,7 +152,7 @@ fun LoginScreen(
 }
 
 private fun mensajeErrorLogin(usuarioOcorreo: String, password: String): String? = when {
-    usuarioOcorreo.isBlank() -> "Ingresa tu usuario o correo"
+    usuarioOcorreo.isBlank() -> "Ingresa tu correo electrónico"
     password.isBlank() -> "Ingresa tu contraseña"
     else -> null
 }

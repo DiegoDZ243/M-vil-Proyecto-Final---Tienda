@@ -60,6 +60,13 @@ fun RegisterScreen(
         }
     }
 
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            viewModel.resetSuccess()
+            onRegisterSuccess()
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
@@ -185,7 +192,6 @@ fun RegisterScreen(
                             colonia = colonia.trim(),
                             codigoPostal = codigoPostal.trim()
                         )
-                        // AuthViewModel.register crea la cuenta, invoca onRegisterSuccess()
                     }
                 },
                 enabled = !uiState.isLoading,
