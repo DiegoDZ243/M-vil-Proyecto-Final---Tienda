@@ -50,6 +50,7 @@ fun ProductDetailScreen(
     productId: Int,
     viewModel: TiendaViewModel = viewModel(),
     onNavigateBack: () -> Unit,
+    isEmbedded: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -78,8 +79,10 @@ fun ProductDetailScreen(
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.detalle_producto)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                    if (!isEmbedded) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                        }
                     }
                 }
             )
