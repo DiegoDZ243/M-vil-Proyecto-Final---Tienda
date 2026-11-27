@@ -46,7 +46,12 @@ class TiendaViewModel(
                 val nombreMostrar = usuario?.nombre?.ifBlank { null }
                     ?: usuario?.correo
                     ?: if (accountService.currentUserId.isNotEmpty()) accountService.currentUserId else "Usuario"
-                _uiState.update { it.copy(username = nombreMostrar) }
+                _uiState.update {
+                    it.copy(
+                        username = nombreMostrar,
+                        shoppingCart = usuario?.carrito.orEmpty()
+                    )
+                }
             }
         }
     }
@@ -105,6 +110,7 @@ class TiendaViewModel(
                 mensaje = "\"${producto.nombre}\" agregado al carrito"
             )
         }
+        persistirCarrito()
     }
 
     fun cambiarCantidad(productoId: Int, delta: Int) {
@@ -138,10 +144,12 @@ class TiendaViewModel(
 
             currentState
         }
+        persistirCarrito()
     }
 
     fun vaciarCarrito() {
         _uiState.update { it.copy(shoppingCart = emptyList(), mensaje = "Carrito vaciado") }
+        persistirCarrito()
     }
 
     fun crearProducto(
@@ -242,6 +250,7 @@ class TiendaViewModel(
                         shoppingCart = emptyList()
                     )
                 }
+                persistirCarrito()
                 onResultado(nuevoId)
             } catch (e: Exception) {
                 Log.e("TiendaViewModel", "Error al guardar el pedido en Firebase: ${e.message}")
@@ -265,6 +274,19 @@ class TiendaViewModel(
                 onComplete()
             } catch (e: Exception) {
                 Log.e("TiendaViewModel", "Error al cerrar sesión: ${e.message}")
+            }
+        }
+    }
+
+    private fun persistirCarrito() {
+        val uid = accountService.currentUserId
+        if (uid.isBlank()) return
+        val carrito = _uiState.value.shoppingCart
+        viewModelScope.launch {
+            try {
+                accountService.guardarCarrito(uid, carrito)
+            } catch (e: Exception) {
+                Log.e("TiendaViewModel", "Error al persistir carrito: ${e.message}")
             }
         }
     }
