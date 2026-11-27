@@ -46,6 +46,7 @@ dependencies {
     implementation("androidx.compose.material3.adaptive:adaptive")
     implementation("androidx.compose.material3.adaptive:adaptive-layout")
     implementation("androidx.compose.material3.adaptive:adaptive-navigation")
+    implementation(libs.androidx.compose.material3.window.size.class1)
     implementation(libs.androidx.compose.runtime.saveable)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)

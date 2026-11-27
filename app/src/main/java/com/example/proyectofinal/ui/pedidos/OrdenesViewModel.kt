@@ -138,4 +138,20 @@ class OrdenesViewModel(
             }
         }
     }
+
+    fun seleccionarPedido(pedido: Pedido) {
+        estadoUi.update {
+            it.copy(
+                pedidoSeleccionadoId = pedido.id, // o pedido.id si es Int
+                mostrandoLista = false
+            )
+        }
+    }
+    fun regresarALista() {
+        estadoUi.update {
+            it.copy(
+                mostrandoLista = true
+            )
+        }
+    }
 }

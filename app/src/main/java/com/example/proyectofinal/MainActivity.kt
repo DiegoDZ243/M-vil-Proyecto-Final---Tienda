@@ -1,8 +1,8 @@
 package com.example.proyectofinal
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 
 sealed class Routes(val ruta: String) {
     object Carrito : Routes("carrito")

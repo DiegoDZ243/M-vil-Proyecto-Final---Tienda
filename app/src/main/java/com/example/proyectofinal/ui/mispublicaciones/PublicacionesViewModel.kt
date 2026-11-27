@@ -8,12 +8,14 @@ import com.example.inventory.data.ProductsRepository
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.data.model.service.AccountService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PublicacionesViewModel(
@@ -21,15 +23,20 @@ class PublicacionesViewModel(
     private val accountService: AccountService
 ) : ViewModel() {
 
+    private val estadoSeleccion = MutableStateFlow(PublicacionesUiState())
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<PublicacionesUiState> = accountService.currentUser
         .flatMapLatest { usuario ->
             val activeUid = usuario?.uid.orEmpty().ifEmpty { accountService.currentUserId }
-            productsRepository.getAllProductsStream().map { productos ->
+            combine(
+                productsRepository.getAllProductsStream(),
+                estadoSeleccion
+            ) { productos, currentState ->
                 val misProductos = productos.filter {
                     it.vendedorId == activeUid || (activeUid.isEmpty() && it.vendedorId == "Usuario")
                 }
-                PublicacionesUiState(
+                currentState.copy(
                     productos = misProductos,
                     isLoading = false
                 )
@@ -44,6 +51,21 @@ class PublicacionesViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = PublicacionesUiState(isLoading = true)
         )
+
+    fun seleccionarProducto(producto: Producto) {
+        estadoSeleccion.update {
+            it.copy(
+                productoSeleccionadoId = producto.id,
+                mostrandoLista = false
+            )
+        }
+    }
+
+    fun regresarALista() {
+        estadoSeleccion.update {
+            it.copy(mostrandoLista = true)
+        }
+    }
 
     fun editarPublicacion(
         productoActual: Producto?,
