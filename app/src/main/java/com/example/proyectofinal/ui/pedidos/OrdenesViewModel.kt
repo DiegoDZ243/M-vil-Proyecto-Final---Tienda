@@ -7,13 +7,16 @@ import com.example.inventory.data.ProductsRepository
 import com.example.proyectofinal.data.model.EstadoPedido
 import com.example.proyectofinal.data.model.Pedido
 import com.example.proyectofinal.data.model.estaDentroDeVentanaCancelacion
+import com.example.proyectofinal.data.model.service.AccountService
 import com.example.proyectofinal.data.repositories.orders.OrdersRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -21,33 +24,37 @@ import kotlinx.coroutines.launch
 class OrdenesViewModel(
     private val ordersRepository: OrdersRepository,
     private val productsRepository: ProductsRepository,
-    private val usuarioActual: String
+    private val accountService: AccountService
 ) : ViewModel() {
 
-    private val estadoUi = MutableStateFlow(
-        OrdenesUiState(usuarioActual = usuarioActual)
-    )
+    private val estadoUi = MutableStateFlow(OrdenesUiState())
 
-    val uiState: StateFlow<OrdenesUiState> = combine(
-        ordersRepository.getOrdersByUserStream(usuarioActual)
-            .catch { e ->
-                Log.e("OrdenesViewModel", "Error al leer pedidos: ${e.message}")
-                emit(emptyList())
-            },
-        estadoUi
-    ) { ordenesFirebase, currentState ->
-        // Los pedidos más recientes primero
-        val ordenados = ordenesFirebase.sortedByDescending { it.fecha }
-        currentState.copy(
-            pedidos = ordenados,
-            numPedidos = ordenados.size,
-            isLoading = false
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow<OrdenesUiState> = accountService.currentUser
+        .flatMapLatest { usuario ->
+            val activeUid = usuario?.uid.orEmpty().ifEmpty { accountService.currentUserId }
+            combine(
+                ordersRepository.getOrdersByUserStream(activeUid)
+                    .catch { e ->
+                        Log.e("OrdenesViewModel", "Error al leer pedidos: ${e.message}")
+                        emit(emptyList())
+                    },
+                estadoUi
+            ) { ordenesFirebase, currentState ->
+                val ordenados = ordenesFirebase.sortedByDescending { it.fecha }
+                currentState.copy(
+                    usuarioActual = activeUid,
+                    pedidos = ordenados,
+                    numPedidos = ordenados.size,
+                    isLoading = false
+                )
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = OrdenesUiState()
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = OrdenesUiState(usuarioActual = usuarioActual)
-    )
 
     fun limpiarMensaje() {
         estadoUi.update { it.copy(mensaje = null) }
@@ -57,10 +64,6 @@ class OrdenesViewModel(
         estadoUi.update { it.copy(mensaje = mensaje) }
     }
 
-    /**
-     * RF-14 / RF-15: cancela un pedido solo si sigue pendiente y no han pasado más de 6 horas.
-     * Al cancelar se devuelve el stock de los productos.
-     */
     fun cancelarPedido(pedido: Pedido) {
         viewModelScope.launch {
             try {
@@ -75,7 +78,6 @@ class OrdenesViewModel(
 
                 ordersRepository.updateOrder(pedido.copy(estado = EstadoPedido.CANCELADO))
 
-                // Se regresan las unidades al inventario
                 pedido.items.forEach { item ->
                     val productoActual = productsRepository.getProductStream(item.producto.id).first()
                     if (productoActual != null) {
@@ -92,7 +94,6 @@ class OrdenesViewModel(
         }
     }
 
-    /** Marca el pedido como recibido; habilita calificar los productos (RF-20). */
     fun finalizarPedido(pedido: Pedido) {
         viewModelScope.launch {
             try {
@@ -106,10 +107,6 @@ class OrdenesViewModel(
         }
     }
 
-    /**
-     * RF-20: califica (1 a 5) un producto de un pedido finalizado.
-     * Actualiza el promedio y el número de reseñas del producto y guarda la calificación en el pedido.
-     */
     fun calificarProducto(pedido: Pedido, productoId: Int, estrellas: Int) {
         viewModelScope.launch {
             try {

@@ -20,21 +20,17 @@ object AppViewModelProvider {
         }
 
         initializer {
-            val accountService = tiendaApplication().container.accountService
-            val currentUserId = accountService.currentUserId.ifEmpty { "Usuario" }
             PublicacionesViewModel(
                 tiendaApplication().container.productsRepository,
-                currentUserId
+                tiendaApplication().container.accountService
             )
         }
 
         initializer {
-            val accountService = tiendaApplication().container.accountService
-            val currentUserId = accountService.currentUserId.ifEmpty { "Usuario" }
             OrdenesViewModel(
                 tiendaApplication().container.ordersRepository,
                 tiendaApplication().container.productsRepository,
-                currentUserId
+                tiendaApplication().container.accountService
             )
         }
 
