@@ -46,6 +46,7 @@
     <string name="checkout_titulo">Confirmar compra</string>
     <string name="resumen_pedido">Resumo do pedido</string>
     <string name="direccion_envio">Endereço de entrega</string>
+    <string name="usar_mi_direccion">Usar meu endereço registrado</string>
     <string name="metodo_pago">Método de pagamento</string>
     <string name="tarjeta_credito">Cartão de crédito / débito</string>
     <string name="efectivo">Pagamento em dinheiro</string>

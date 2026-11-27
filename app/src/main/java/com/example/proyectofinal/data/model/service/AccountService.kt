@@ -1,5 +1,6 @@
 package com.example.proyectofinal.data.model.service
 
+import com.example.proyectofinal.data.model.ProductoCarrito
 import com.example.proyectofinal.data.model.Usuario
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -19,6 +20,7 @@ interface AccountService {
     suspend fun authenticate(email: String, password: String)
     suspend fun signUp(usuario: Usuario, password: String)
     suspend fun signOut()
+    suspend fun guardarCarrito(uid: String, carrito: List<ProductoCarrito>)
 }
 
 class AccountServiceImpl(
@@ -89,5 +91,9 @@ class AccountServiceImpl(
 
     override suspend fun signOut() {
         auth.signOut()
+    }
+
+    override suspend fun guardarCarrito(uid: String, carrito: List<ProductoCarrito>) {
+        usersRef.child(uid).child("carrito").setValue(carrito).await()
     }
 }

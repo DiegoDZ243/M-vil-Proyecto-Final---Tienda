@@ -7,5 +7,6 @@ data class Usuario(
     val calle: String = "",
     val numero: String = "",
     val colonia: String = "",
-    val codigoPostal: String = ""
+    val codigoPostal: String = "",
+    val carrito: List<ProductoCarrito> = emptyList()
 )

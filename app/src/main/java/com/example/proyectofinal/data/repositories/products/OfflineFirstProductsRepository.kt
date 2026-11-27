@@ -2,6 +2,7 @@ package com.example.proyectofinal.data.repositories.products
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.example.inventory.data.ProductsRepository
 import com.example.proyectofinal.data.local.entities.toDomain
 import com.example.proyectofinal.data.local.repositories.RoomProductsRepository
@@ -18,22 +19,20 @@ import java.io.FileOutputStream
 
 class OfflineFirstProductsRepository(
     private val localRepository: RoomProductsRepository,
-    private val remoteRepository: FirebaseProductsRepository, // Tu repo actual de Firebase
+    private val remoteRepository: FirebaseProductsRepository,
     private val networkMonitor: NetworkMonitor,
     private val context: Context
 ) : ProductsRepository {
 
     override fun getAllProductsStream(): Flow<List<Producto>> = channelFlow {
-        // 1. En segundo plano, escucha Firebase y actualiza Room cuando haya red
         launch {
             remoteRepository.getAllProductsStream()
-                .catch { /* Ignora errores de red si está offline */ }
+                .catch { e -> Log.e("OfflineFirstProducts", "Error al escuchar remotos: ${e.message}") }
                 .collect { productosFirebase ->
                     localRepository.syncFromRemote(productosFirebase)
                 }
         }
 
-        // 2. Emite siempre desde Room (respuesta inmediata con o sin internet)
         localRepository.getAllProductsStream().collect { productosLocales ->
             send(productosLocales)
         }
@@ -56,7 +55,6 @@ class OfflineFirstProductsRepository(
     }
 
     override suspend fun updateProduct(product: Producto) {
-        // Misma lógica que insertProduct (REPLACE en Room y setValue en Firebase)
         insertProduct(product)
     }
 
@@ -66,7 +64,6 @@ class OfflineFirstProductsRepository(
             try {
                 remoteRepository.deleteProduct(product)
             } catch (e: Exception) {
-                // Si falló, lo dejamos oculto en Room para borrarlo en Firebase luego
                 localRepository.saveProduct(
                     product,
                     pendienteSincronizar = true,
@@ -74,7 +71,6 @@ class OfflineFirstProductsRepository(
                 )
             }
         } else {
-            // Sin internet: lo ocultamos en Room y lo marcamos para borrarlo al reconectar
             localRepository.saveProduct(
                 product,
                 pendienteSincronizar = true,
@@ -87,7 +83,6 @@ class OfflineFirstProductsRepository(
         return if (networkMonitor.isConnected()) {
             remoteRepository.uploadProductImage(imagenUri)
         } else {
-            // Copia la foto a la carpeta privada de la app para que Android no revoque el permiso de lectura
             copiarImagenAAlmacenamientoLocal(imagenUri)
         }
     }
@@ -104,7 +99,6 @@ class OfflineFirstProductsRepository(
                     input.copyTo(output)
                 }
             }
-            // Devuelve la ruta interna con formato "file:///..."
             Uri.fromFile(archivoDestino).toString()
         }
 
@@ -120,23 +114,31 @@ class OfflineFirstProductsRepository(
                 } else {
                     var productoParaSubir = entity.toDomain()
 
-                    // Si la imagen es un archivo local pendiente, súbela primero a Cloudinary/Firebase
-                    if (productoParaSubir.imagen.startsWith("file://")) {
-                        val uriLocal = Uri.parse(productoParaSubir.imagen)
-                        val urlNube = remoteRepository.uploadProductImage(uriLocal)
+                    val imagenActual = productoParaSubir.imagen
+                    if (imagenActual.startsWith("file:") || imagenActual.startsWith("/")) {
+                        val filePath = Uri.parse(imagenActual).path ?: imagenActual
+                        val archivoLocal = File(filePath)
 
-                        productoParaSubir = productoParaSubir.copy(imagen = urlNube)
-                        localRepository.saveProduct(productoParaSubir, pendienteSincronizar = true)
+                        if (archivoLocal.exists()) {
+                            val uriLocal = Uri.fromFile(archivoLocal)
+                            val urlNube = remoteRepository.uploadProductImage(uriLocal)
 
-                        // Borra el archivo temporal local ya que está en la nube
-                        uriLocal.path?.let { File(it).delete() }
+                            if (urlNube.isNotBlank() && !urlNube.startsWith("file:") && !urlNube.startsWith("/")) {
+                                productoParaSubir = productoParaSubir.copy(imagen = urlNube)
+                                localRepository.saveProduct(productoParaSubir, pendienteSincronizar = true)
+                                archivoLocal.delete()
+                            } else {
+                                Log.e("OfflineFirstProducts", "Falló la subida de imagen a Cloudinary para el producto #${productoParaSubir.id}")
+                                return@forEach
+                            }
+                        }
                     }
 
                     remoteRepository.insertProduct(productoParaSubir)
                     localRepository.markAsSynced(productoParaSubir.id)
                 }
             } catch (e: Exception) {
-                // Si vuelve a fallar la red, se queda pendiente para el siguiente intento
+                Log.e("OfflineFirstProducts", "Error al sincronizar producto #${entity.id}: ${e.message}")
             }
         }
     }

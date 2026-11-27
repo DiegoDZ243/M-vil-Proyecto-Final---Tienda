@@ -1,6 +1,7 @@
 package com.example.proyectofinal.data.repositories.products
 
 import android.net.Uri
+import android.util.Log
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
@@ -10,7 +11,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -18,7 +18,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 class FirebaseProductsRepository(
     private val databaseRef: DatabaseReference
@@ -27,7 +26,6 @@ class FirebaseProductsRepository(
     override fun getAllProductsStream(): Flow<List<Producto>> = callbackFlow {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // Mapeamos los nodos de Firebase a la lista de Productos
                 val items = snapshot.children.mapNotNull {
                     it.getValue(Producto::class.java)
                 }
@@ -41,7 +39,6 @@ class FirebaseProductsRepository(
 
         databaseRef.addValueEventListener(listener)
 
-        // Se ejecuta cuando el Flow deja de recolectarse
         awaitClose { databaseRef.removeEventListener(listener) }
     }
 
@@ -57,13 +54,11 @@ class FirebaseProductsRepository(
             }
         }
 
-        // Buscamos un hijo específico por su ID
         databaseRef.child(id.toString()).addValueEventListener(listener)
         awaitClose { databaseRef.child(id.toString()).removeEventListener(listener) }
     }
 
     override suspend fun insertProduct(product: Producto) {
-        // Guardamos el producto usando su ID autogenerado como llave en Firebase
         databaseRef.child(product.id.toString()).setValue(product).await()
     }
 
@@ -72,35 +67,54 @@ class FirebaseProductsRepository(
     }
 
     override suspend fun updateProduct(product: Producto) {
-        // En Firebase, hacer setValue a un nodo que ya existe lo sobrescribe (lo actualiza)
         databaseRef.child(product.id.toString()).setValue(product).await()
     }
 
     override suspend fun uploadProductImage(imageUri: Uri): String {
         return suspendCancellableCoroutine { continuation ->
-            val uniqueFileName=UUID.randomUUID().toString()
+            val uniqueFileName = UUID.randomUUID().toString()
 
-            MediaManager.get().upload(imageUri)
-                .unsigned("ml_default") // Requisito de seguridad por parte de cloudinary
-                .option("public_id",uniqueFileName)
+            val uploadPayload: Any = if (imageUri.scheme == "file" && !imageUri.path.isNullOrEmpty()) {
+                imageUri.path!!
+            } else {
+                imageUri
+            }
+
+            val request = when (uploadPayload) {
+                is String -> MediaManager.get().upload(uploadPayload)
+                is Uri -> MediaManager.get().upload(uploadPayload)
+                else -> MediaManager.get().upload(imageUri)
+            }
+
+            request.unsigned("ml_default")
+                .option("public_id", uniqueFileName)
                 .callback(object : UploadCallback {
                     override fun onStart(requestId: String?) {}
                     override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
 
                     override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
-                        // Extraemos la URL segura (https) del mapa de resultados
-                        val url = resultData?.get("secure_url") as? String ?: ""
-                        continuation.resume(url)
+                        val url = resultData?.get("secure_url") as? String
+                            ?: resultData?.get("url") as? String
+                            ?: ""
+                        if (continuation.isActive) {
+                            continuation.resume(url)
+                        }
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
-                        continuation.resumeWithException(Exception(error?.description))
+                        Log.e("FirebaseProductsRepo", "Error al subir imagen a Cloudinary: ${error?.description}")
+                        if (continuation.isActive) {
+                            continuation.resume("")
+                        }
                     }
 
-                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {
+                        if (continuation.isActive) {
+                            continuation.resume("")
+                        }
+                    }
                 })
                 .dispatch()
         }
     }
-
 }
