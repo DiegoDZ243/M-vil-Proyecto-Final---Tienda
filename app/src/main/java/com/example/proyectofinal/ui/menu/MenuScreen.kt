@@ -1,5 +1,6 @@
 package com.example.proyectofinal.ui.menu
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -87,7 +88,9 @@ fun MenuScreen(
     onCartClick: () -> Unit,
     onOpenMenu: () -> Unit,
     onProductClick: (Int) -> Unit,
-    showMenuButton: Boolean = true
+    showMenuButton: Boolean = true,
+    modifier: Modifier = Modifier,
+    productoSeleccionadoId: Int? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -152,6 +155,7 @@ fun MenuScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             MenuScreenTopAppBar(
                 cartCount = uiState.shoppingCart.sumOf { it.cantidad },
@@ -219,7 +223,8 @@ fun MenuScreen(
                                 product = producto,
                                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
                                 onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
-                                onProductClick = { onProductClick(producto.id) }
+                                onProductClick = { onProductClick(producto.id) },
+                                isSelected = productoSeleccionadoId == producto.id
                             )
                         }
                     }
@@ -239,7 +244,8 @@ fun MenuScreen(
                             ProductGridItem(
                                 product = producto,
                                 onAgregarCarrito = { viewModel.agregarAlCarrito(producto) },
-                                onProductClick = { onProductClick(producto.id) }
+                                onProductClick = { onProductClick(producto.id) },
+                                isSelected = productoSeleccionadoId == producto.id
                             )
                         }
                     }
@@ -331,7 +337,8 @@ fun ProductItem(
     product: Producto,
     modifier: Modifier = Modifier,
     onAgregarCarrito: () -> Unit,
-    onProductClick: () -> Unit
+    onProductClick: () -> Unit,
+    isSelected: Boolean = false
 ) {
     Card(
         modifier = modifier
@@ -339,6 +346,7 @@ fun ProductItem(
             .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
         onClick = onProductClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -403,7 +411,8 @@ private fun ProductGridItem(
     product: Producto,
     modifier: Modifier = Modifier,
     onAgregarCarrito: () -> Unit,
-    onProductClick: () -> Unit
+    onProductClick: () -> Unit,
+    isSelected: Boolean = false
 ) {
     Card(
         modifier = modifier
@@ -411,6 +420,7 @@ private fun ProductGridItem(
             .padding(vertical = 4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
         onClick = onProductClick
     ) {
         Column(

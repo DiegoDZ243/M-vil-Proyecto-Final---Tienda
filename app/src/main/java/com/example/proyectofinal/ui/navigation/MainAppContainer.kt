@@ -1,15 +1,10 @@
 package com.example.proyectofinal.ui.navigation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberDrawerState
 import androidx.window.core.layout.WindowSizeClass
@@ -17,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,6 +28,7 @@ import com.example.proyectofinal.ui.auth.LoginScreen
 import com.example.proyectofinal.ui.auth.RegisterScreen
 import com.example.proyectofinal.ui.carrito.CheckoutScreen
 import com.example.proyectofinal.ui.carrito.ShoppingCartScreen
+import com.example.proyectofinal.ui.detalle.DetailPane
 import com.example.proyectofinal.ui.detalle.ProductDetailScreen
 import com.example.proyectofinal.ui.menu.BarraLateral
 import com.example.proyectofinal.ui.menu.MenuScreen
@@ -49,6 +47,8 @@ fun MainAppContainer() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    var productoSeleccionadoId by rememberSaveable { mutableStateOf<Int?>(null) }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -59,11 +59,25 @@ fun MainAppContainer() {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val isAuthRoute = currentRoute == "login" || currentRoute == "register"
     val isExpandedWidth = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
-    val showPermanentDrawer = isExpandedWidth && !isAuthRoute
 
-    LaunchedEffect(showPermanentDrawer, isAuthRoute) {
-        if (showPermanentDrawer || isAuthRoute) {
+    LaunchedEffect(isAuthRoute) {
+        if (isAuthRoute) {
             drawerState.close()
+        }
+    }
+
+    LaunchedEffect(isExpandedWidth) {
+        if (isExpandedWidth) {
+            if (currentRoute?.startsWith("product_detail/") == true) {
+                val productId = currentRoute?.substringAfter("product_detail/")?.toIntOrNull()
+                if (productId != null) {
+                    productoSeleccionadoId = productId
+                    navController.popBackStack("menu", inclusive = false)
+                }
+            }
+        } else if (productoSeleccionadoId != null && currentRoute == "menu") {
+            navController.navigate("product_detail/$productoSeleccionadoId")
+            productoSeleccionadoId = null
         }
     }
 
@@ -86,9 +100,9 @@ fun MainAppContainer() {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = gesturesEnabled && !showPermanentDrawer,
+        gesturesEnabled = gesturesEnabled,
         drawerContent = {
-            if (!isAuthRoute && !showPermanentDrawer) {
+            if (!isAuthRoute) {
                 ModalDrawerSheet {
                     BarraLateral(
                         username = uiState.username,
@@ -98,48 +112,51 @@ fun MainAppContainer() {
             }
         }
     ) {
-        Row(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .width(if (showPermanentDrawer) DrawerDefaults.MaximumDrawerWidth else 0.dp)
-                    .fillMaxHeight()
-            ) {
-                if (showPermanentDrawer) {
-                    PermanentDrawerSheet(modifier = Modifier.fillMaxSize()) {
-                        BarraLateral(
-                            username = uiState.username,
-                            onItemClick = onDrawerItemClick
-                        )
-                    }
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                NavHost(
-                    navController = navController,
-                    startDestination = startDestination,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    composable("menu") {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            composable("menu") {
+                if (isExpandedWidth) {
+                    Row(modifier = Modifier.fillMaxSize()) {
                         MenuScreen(
                             viewModel = viewModel,
                             onCartClick = {
                                 navController.navigate("cart")
                             },
                             onOpenMenu = {
-                                if (!showPermanentDrawer) {
-                                    scope.launch { drawerState.open() }
-                                }
+                                scope.launch { drawerState.open() }
                             },
                             onProductClick = { productId ->
-                                navController.navigate("product_detail/$productId")
+                                productoSeleccionadoId = productId
                             },
-                            showMenuButton = !showPermanentDrawer
+                            showMenuButton = true,
+                            modifier = Modifier.weight(3f),
+                            productoSeleccionadoId = productoSeleccionadoId
+                        )
+                        DetailPane(
+                            productoId = productoSeleccionadoId,
+                            viewModel = viewModel,
+                            modifier = Modifier.weight(2f)
                         )
                     }
+                } else {
+                    MenuScreen(
+                        viewModel = viewModel,
+                        onCartClick = {
+                            navController.navigate("cart")
+                        },
+                        onOpenMenu = {
+                            scope.launch { drawerState.open() }
+                        },
+                        onProductClick = { productId ->
+                            navController.navigate("product_detail/$productId")
+                        },
+                        showMenuButton = true
+                    )
+                }
+            }
                     composable("cart") {
                         ShoppingCartScreen(
                             viewModel = viewModel,
@@ -238,8 +255,6 @@ fun MainAppContainer() {
                             }
                         )
                     }
-                }
-            }
         }
     }
 }
