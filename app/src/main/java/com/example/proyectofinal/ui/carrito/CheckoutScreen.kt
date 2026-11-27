@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -29,6 +30,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -73,6 +75,14 @@ fun CheckoutScreen(
     var metodoPago by rememberSaveable { mutableStateOf(MetodoPago.TARJETA) }
     var procesando by remember { mutableStateOf(false) }
     var pedidoConfirmadoId by rememberSaveable { mutableStateOf<Int?>(null) }
+
+    val direccionRegistrada = remember(uiState.usuario) {
+        uiState.usuario?.let { u ->
+            listOf(u.calle, u.numero, u.colonia, u.codigoPostal)
+                .filter { it.isNotBlank() }
+                .joinToString(", ")
+        }.orEmpty()
+    }
 
     LaunchedEffect(uiState.carritoError) {
         uiState.carritoError?.let { error ->
@@ -154,6 +164,22 @@ fun CheckoutScreen(
                     minLines = 2,
                     maxLines = 4
                 )
+
+                if (direccionRegistrada.isNotBlank()) {
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { direccion = direccionRegistrada },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.usar_mi_direccion))
+                    }
+                }
 
                 Spacer(Modifier.height(20.dp))
 

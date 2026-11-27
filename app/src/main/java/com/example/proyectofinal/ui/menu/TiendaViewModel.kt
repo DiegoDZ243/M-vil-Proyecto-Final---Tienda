@@ -49,7 +49,8 @@ class TiendaViewModel(
                 _uiState.update {
                     it.copy(
                         username = nombreMostrar,
-                        shoppingCart = usuario?.carrito.orEmpty()
+                        shoppingCart = usuario?.carrito.orEmpty(),
+                        usuario = usuario
                     )
                 }
             }

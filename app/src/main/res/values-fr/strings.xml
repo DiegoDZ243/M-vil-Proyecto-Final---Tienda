@@ -46,6 +46,7 @@
     <string name="checkout_titulo">Confirmer l\'achat</string>
     <string name="resumen_pedido">Résumé de la commande</string>
     <string name="direccion_envio">Adresse de livraison</string>
+    <string name="usar_mi_direccion">Utiliser mon adresse enregistrée</string>
     <string name="metodo_pago">Mode de paiement</string>
     <string name="tarjeta_credito">Carte de crédit / débit</string>
     <string name="efectivo">Paiement en espèces</string>

@@ -46,6 +46,7 @@
     <string name="checkout_titulo">Confirm purchase</string>
     <string name="resumen_pedido">Order summary</string>
     <string name="direccion_envio">Shipping address</string>
+    <string name="usar_mi_direccion">Use my registered address</string>
     <string name="metodo_pago">Payment method</string>
     <string name="tarjeta_credito">Credit / Debit Card</string>
     <string name="efectivo">Cash payment</string>
