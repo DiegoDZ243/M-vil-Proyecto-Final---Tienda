@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -44,6 +44,7 @@ import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
 import com.example.proyectofinal.ui.components.RatingBar
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +58,7 @@ fun ProductDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val producto = uiState.productos.find { it.id == productId }
     val snackbarHostState = remember { SnackbarHostState() }
+    val currentUserId = remember { FirebaseAuth.getInstance().currentUser?.uid.orEmpty() }
 
     LaunchedEffect(uiState.mensaje) {
         uiState.mensaje?.let { mensaje ->
@@ -82,7 +84,7 @@ fun ProductDetailScreen(
                 navigationIcon = {
                     if (!isEmbedded) {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                         }
                     }
                 }
@@ -92,6 +94,8 @@ fun ProductDetailScreen(
         modifier = modifier
     ) { innerPadding ->
         if (producto != null) {
+            val esPropio = currentUserId.isNotEmpty() && producto.vendedorId == currentUserId
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -132,6 +136,10 @@ fun ProductDetailContent(
     onAgregarAlCarrito: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentUserId = remember { FirebaseAuth.getInstance().currentUser?.uid.orEmpty() }
+    val esPropio = (currentUserId.isNotEmpty() && producto.vendedorId == currentUserId) ||
+            (currentUserId.isEmpty() && producto.vendedorId == "Usuario")
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -188,18 +196,23 @@ fun ProductDetailContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(
-            onClick = onAgregarAlCarrito,
-            enabled = producto.stock > 0,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(
-                imageVector = Icons.Default.ShoppingCart,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(if (producto.stock > 0) stringResource(R.string.agregar_al_carrito) else stringResource(R.string.sin_stock))
+        if (!esPropio) {
+            Button(
+                onClick = onAgregarAlCarrito,
+                enabled = producto.stock > 0,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    if (producto.stock > 0) stringResource(R.string.agregar_al_carrito)
+                    else stringResource(R.string.sin_stock)
+                )
+            }
         }
     }
 }
