@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.proyectofinal.R
+import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
 import com.example.proyectofinal.ui.components.RatingBar
 
@@ -97,78 +98,13 @@ fun ProductDetailScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.TopCenter
             ) {
-                Column(
+                ProductDetailContent(
+                    producto = producto,
+                    onAgregarAlCarrito = { viewModel.agregarAlCarrito(producto) },
                     modifier = Modifier
                         .widthIn(max = 600.dp)
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                ) {
-                AsyncImage(
-                    model = producto.imagen,
-                    contentDescription = producto.nombre,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
-                        .clip(MaterialTheme.shapes.medium),
-                    contentScale = ContentScale.Fit
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = producto.nombre,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                RatingBar(
-                    calificacion = producto.calificacion,
-                    numReviews = producto.numReviews,
-                    starSize = 28.dp,
-                    modifier = Modifier.padding(top = 6.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "$%.2f".format(producto.precio),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = producto.descripcion,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = if (producto.stock > 0) stringResource(R.string.disponibles_count, producto.stock) else stringResource(R.string.agotado),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (producto.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = { viewModel.agregarAlCarrito(producto) },
-                    enabled = producto.stock > 0,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(if (producto.stock > 0) stringResource(R.string.agregar_al_carrito) else stringResource(R.string.sin_stock))
-                }
-            }
             }
         } else {
             Box(
@@ -182,6 +118,88 @@ fun ProductDetailScreen(
                     style = MaterialTheme.typography.titleLarge
                 )
             }
+        }
+    }
+}
+
+/**
+ * Contenido del detalle de un producto. Lo usan la pantalla de detalle
+ * y el panel lateral del carrito en tablets.
+ */
+@Composable
+fun ProductDetailContent(
+    producto: Producto,
+    onAgregarAlCarrito: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        AsyncImage(
+            model = producto.imagen,
+            contentDescription = producto.nombre,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(220.dp)
+                .clip(MaterialTheme.shapes.medium),
+            contentScale = ContentScale.Fit
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = producto.nombre,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        RatingBar(
+            calificacion = producto.calificacion,
+            numReviews = producto.numReviews,
+            starSize = 28.dp,
+            modifier = Modifier.padding(top = 6.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "$%.2f".format(producto.precio),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = producto.descripcion,
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = if (producto.stock > 0) stringResource(R.string.disponibles_count, producto.stock) else stringResource(R.string.agotado),
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (producto.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = onAgregarAlCarrito,
+            enabled = producto.stock > 0,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.ShoppingCart,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(if (producto.stock > 0) stringResource(R.string.agregar_al_carrito) else stringResource(R.string.sin_stock))
         }
     }
 }
