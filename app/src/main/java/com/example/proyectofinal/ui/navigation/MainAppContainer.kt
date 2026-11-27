@@ -7,6 +7,8 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +41,7 @@ import com.example.proyectofinal.ui.vender.EditProductScreen
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun MainAppContainer() {
     val navController = rememberNavController()
@@ -83,6 +86,11 @@ fun MainAppContainer() {
 
     val onDrawerItemClick: (String) -> Unit = { item ->
         when (item) {
+            "Tienda" -> {
+                navController.navigate("menu") {
+                    popUpTo("menu") { inclusive = true }
+                }
+            }
             "Vender" -> navController.navigate("create_product")
             "MisPublicaciones" -> navController.navigate("mis_publicaciones")
             "Pedidos" -> navController.navigate("orders")
@@ -186,6 +194,7 @@ fun MainAppContainer() {
                     }
                     composable("create_product") {
                         CreateProductScreen(
+                            isExpandedWidth = isExpandedWidth,
                             viewModel = viewModel,
                             onNavigateBack = {
                                 navController.popBackStack()
@@ -195,6 +204,7 @@ fun MainAppContainer() {
                     composable("edit_product/{productId}") { backStackEntry ->
                         val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
                         EditProductScreen(
+                            isExpandedWidth = isExpandedWidth,
                             onNavigateBack = {
                                 navController.popBackStack()
                             },
@@ -203,6 +213,7 @@ fun MainAppContainer() {
                     }
                     composable("orders") {
                         OrdersScreen(
+                            isExpandedWidth = isExpandedWidth,
                             onNavigateBack = {
                                 navController.popBackStack()
                             }
@@ -210,6 +221,7 @@ fun MainAppContainer() {
                     }
                     composable("mis_publicaciones") {
                         MisPublicacionesScreen(
+                            isExpandedWidth = isExpandedWidth,
                             onNavigateBack = {
                                 navController.popBackStack()
                             },
