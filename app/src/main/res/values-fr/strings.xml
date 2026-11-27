@@ -19,6 +19,7 @@
     <string name="enter_password">Entrez votre mot de passe</string>
 
     <!-- Navigation & Menu -->
+    <string name="tienda">Boutique</string>
     <string name="vender">Commencer à vendre</string>
     <string name="mis_publicaciones">Mes publications</string>
     <string name="mis_pedidos">Mes commandes</string>

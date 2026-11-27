@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -66,6 +67,14 @@ fun BarraLateral(
                 style = MaterialTheme.typography.titleLarge
             )
         }
+
+        NavigationDrawerItem(
+            label = { Text(stringResource(R.string.tienda)) },
+            selected = false,
+            onClick = { onItemClick("Tienda") },
+            icon = { Icon(imageVector = Icons.Default.Storefront, contentDescription = null) },
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
 
         NavigationDrawerItem(
             label = { Text(stringResource(R.string.vender)) },
