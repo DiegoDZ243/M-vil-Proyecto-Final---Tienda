@@ -72,6 +72,7 @@ import com.example.proyectofinal.R
 import com.example.proyectofinal.data.model.Producto
 import com.example.proyectofinal.ui.TiendaViewModel
 import com.example.proyectofinal.ui.components.RatingBar
+import com.google.firebase.auth.FirebaseAuth
 
 enum class PrecioFiltro(val labelRes: Int) {
     TODOS(R.string.filtro_todos),
@@ -97,9 +98,12 @@ fun MenuScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedPriceFilter by rememberSaveable { mutableStateOf(PrecioFiltro.TODOS) }
 
+    val currentUserId = remember { FirebaseAuth.getInstance().currentUser?.uid.orEmpty() }
+
     val filteredProducts = remember(uiState.productos, searchQuery, selectedPriceFilter) {
         val baseList = uiState.productos.filter { producto ->
             val matchesSearch = producto.activo &&
+                    (currentUserId.isEmpty() || producto.vendedorId != currentUserId) &&
                     producto.nombre.contains(searchQuery.trim(), ignoreCase = true)
             val matchesPriceRange = when (selectedPriceFilter) {
                 PrecioFiltro.MENOS_DE_500 -> producto.precio < 500.0
