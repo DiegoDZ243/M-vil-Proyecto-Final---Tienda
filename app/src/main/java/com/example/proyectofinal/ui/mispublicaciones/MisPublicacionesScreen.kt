@@ -35,6 +35,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,6 +69,13 @@ fun MisPublicacionesScreen(
     var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(uiState.mensaje) {
+        uiState.mensaje?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.limpiarMensaje()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -147,10 +155,10 @@ fun MisPublicacionesScreen(
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.eliminarPublicacion(producto) { ok ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                if (ok) "Publicación eliminada" else "No se pudo eliminar"
-                            )
+                        if (!ok) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("No se pudo eliminar")
+                            }
                         }
                     }
                     productoAEliminar = null

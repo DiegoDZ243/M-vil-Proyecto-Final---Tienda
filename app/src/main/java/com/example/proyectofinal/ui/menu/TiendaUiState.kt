@@ -12,7 +12,7 @@ data class TiendaUiState(
     val pedidos: List<Pedido> = emptyList(),
     val isLoading: Boolean = true,
     val carritoError: String? = null,
-    // RF-11: mensajes de confirmación de éxito (agregar / eliminar del carrito)
     val mensaje: String? = null,
-    val productoEnEdicion: Producto? = null
+    val productoEnEdicion: Producto? = null,
+    val direccionPerfil: String = ""
 )

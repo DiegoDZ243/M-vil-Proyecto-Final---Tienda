@@ -24,23 +24,29 @@ class PublicacionesViewModel(
 ) : ViewModel() {
 
 
-    val uiState: StateFlow<PublicacionesUiState> = productsRepository.getAllProductsStream()
-        .map { productos ->
-            val misProductos = productos.filter { it.vendedorId == usernameActual }
-            PublicacionesUiState(
-                productos = misProductos,
-                isLoading = false
-            )
-        }
-        .catch { e ->
-            Log.e("PublicacionesViewModel", "Error al cargar publicaciones: ${e.message}")
-            emit(PublicacionesUiState(productos = emptyList(), isLoading = false))
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000), // TIMEOUT_MILLIS
-            initialValue = PublicacionesUiState(isLoading = true)
+    private val _mensaje = MutableStateFlow<String?>(null)
+
+    val uiState: StateFlow<PublicacionesUiState> = combine(
+        productsRepository.getAllProductsStream()
+            .map { productos ->
+                productos.filter { it.vendedorId == usernameActual }
+            }
+            .catch { e ->
+                Log.e("PublicacionesViewModel", "Error al cargar publicaciones: ${e.message}")
+                emit(emptyList())
+            },
+        _mensaje
+    ) { misProductos, mensaje ->
+        PublicacionesUiState(
+            productos = misProductos,
+            isLoading = false,
+            mensaje = mensaje
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000), // TIMEOUT_MILLIS
+        initialValue = PublicacionesUiState(isLoading = true)
+    )
 
 
     fun editarPublicacion(
@@ -71,6 +77,7 @@ class PublicacionesViewModel(
                         imagen = imagenUrlFinal
                     )
                     productsRepository.updateProduct(productoActualizado)
+                    _mensaje.value = "Publicación actualizada correctamente"
                     onComplete()
                 }
 
@@ -85,6 +92,7 @@ class PublicacionesViewModel(
             try {
                 val productoActualizado = producto.copy(activo = false)
                 productsRepository.updateProduct(productoActualizado)
+                _mensaje.value = "Publicación desactivada"
             } catch (e: Exception) {
                 Log.e("PublicacionesViewModel", "Error al desactivar publicación: ${e.message}")
             }
@@ -96,6 +104,7 @@ class PublicacionesViewModel(
             try {
                 val productoActualizado = producto.copy(activo = true)
                 productsRepository.updateProduct(productoActualizado)
+                _mensaje.value = "Publicación activada"
             } catch (e: Exception) {
                 Log.e("PublicacionesViewModel", "Error al activar publicación: ${e.message}")
             }
@@ -107,11 +116,16 @@ class PublicacionesViewModel(
         viewModelScope.launch {
             try {
                 productsRepository.deleteProduct(producto)
+                _mensaje.value = "Publicación eliminada correctamente"
                 onComplete(true)
             } catch (e: Exception) {
                 Log.e("PublicacionesViewModel", "Error al eliminar publicación: ${e.message}")
                 onComplete(false)
             }
         }
+    }
+
+    fun limpiarMensaje() {
+        _mensaje.value = null
     }
 }

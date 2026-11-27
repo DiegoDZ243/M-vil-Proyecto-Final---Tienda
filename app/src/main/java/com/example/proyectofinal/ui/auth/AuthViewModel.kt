@@ -107,7 +107,8 @@ class AuthViewModel(
                     it.copy(
                         isLoading = false,
                         isSuccess = true,
-                        error = null
+                        error = null,
+                        mensaje = "Cuenta creada correctamente"
                     )
                 }
             } catch (e: FirebaseAuthUserCollisionException) {
@@ -135,6 +136,10 @@ class AuthViewModel(
 
     fun limpiarError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun limpiarMensaje() {
+        _uiState.update { it.copy(mensaje = null) }
     }
 
     private fun validarLogin(usuarioOcorreo: String, password: String): String? = when {

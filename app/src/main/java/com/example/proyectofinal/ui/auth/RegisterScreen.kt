@@ -67,6 +67,8 @@ fun RegisterScreen(
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             viewModel.resetSuccess()
+            uiState.mensaje?.let { snackbarHostState.showSnackbar(it) }
+            viewModel.limpiarMensaje()
             onRegisterSuccess()
         }
     }

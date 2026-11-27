@@ -49,7 +49,10 @@ class TiendaViewModel(
                 _uiState.update {
                     it.copy(
                         username = nombreMostrar,
-                        shoppingCart = usuario?.carrito.orEmpty()
+                        shoppingCart = usuario?.carrito.orEmpty(),
+                        direccionPerfil = if (usuario != null && usuario.calle.isNotBlank()) {
+                            "${usuario.calle} #${usuario.numero}, ${usuario.colonia}, C.P. ${usuario.codigoPostal}"
+                        } else ""
                     )
                 }
             }
@@ -187,7 +190,8 @@ class TiendaViewModel(
 
                 _uiState.update { state ->
                     state.copy(
-                        productos = state.productos + nuevoProducto
+                        productos = state.productos + nuevoProducto,
+                        mensaje = "Publicación creada correctamente"
                     )
                 }
             } catch (e: Exception) {

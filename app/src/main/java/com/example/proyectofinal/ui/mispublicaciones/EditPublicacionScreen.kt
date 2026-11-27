@@ -34,6 +34,7 @@ fun EditProductScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModelPublicacion.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val productoAEditar = uiState.productos.find { it.id == productId }
 
@@ -55,6 +56,14 @@ fun EditProductScreen(
             categoria = producto.categoria
             stock = producto.stock.toString()
             imagenUrlServidor = producto.imagen
+        }
+    }
+
+    LaunchedEffect(uiState.mensaje) {
+        uiState.mensaje?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModelPublicacion.limpiarMensaje()
+            onNavigateBack()
         }
     }
 
@@ -100,6 +109,7 @@ fun EditProductScreen(
                 }
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
     ) { innerPadding ->
         Box(
@@ -209,7 +219,6 @@ fun EditProductScreen(
                         nuevaImagenUri = nuevaImagenUri,
                         onComplete = {
                             isUpdating = false
-                            onNavigateBack()
                         }
                     )
                 },
